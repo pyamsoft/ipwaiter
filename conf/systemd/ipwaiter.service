@@ -1,0 +1,13 @@
+[Unit]
+Description=Convenient service for iptables
+After=iptables.service ip6tables.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/bin/ipwaiter hire
+ExecReload=/usr/bin/ipwaiter rehire
+ExecStop=/usr/bin/ipwaiter fire
+
+[Install]
+WantedBy=multi-user.target
