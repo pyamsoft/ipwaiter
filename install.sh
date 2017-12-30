@@ -5,7 +5,7 @@ installer()
   # Prepare directories
   mkdir -p /usr/bin
   mkdir -p /etc/ipwaiter/orders
-  mkdir -p /etc/systemd/system
+  mkdir -p /usr/lib/systemd/system
 
   # Install script
   install -m 755 -D ./ipwaiter /usr/bin || return 1
@@ -17,7 +17,7 @@ installer()
   install -m 644 -D ./conf/orders/*.order /etc/ipwaiter/orders || return 1
 
   # Install systemd service
-  install -m 644 -D ./conf/systemd/ipwaiter.service /etc/systemd/system || return 1
+  install -m 644 -D ./conf/systemd/ipwaiter.service /usr/lib/systemd/system || return 1
 }
 
 uninstaller()
@@ -32,7 +32,7 @@ uninstaller()
   systemctl disable ipwaiter.service
 
   # Remove the service
-  rm -f /etc/systemd/system/ipwaiter.service
+  rm -f /usr/lib/systemd/system/ipwaiter.service
 }
 
 if [ "$(id -u)" -ne 0 ]; then
