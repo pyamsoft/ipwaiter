@@ -8,7 +8,7 @@ pkgname=ipwaiter-git
 # shellcheck disable=SC2034
 pkgdesc="ipwaiter serves iptables"
 # shellcheck disable=SC2034
-pkgver=r6.ffd1ddd
+pkgver=r8.858660f
 # shellcheck disable=SC2034
 pkgrel=1
 # shellcheck disable=SC2034
@@ -24,7 +24,7 @@ provides=('ipwaiter')
 # shellcheck disable=SC2034
 conflicts=('ipwaiter')
 # shellcheck disable=SC2034
-license=('GPL2')
+license=('GPLv2')
 url="https://github.com/pyamsoft/ipwaiter.git"
 
 ##
