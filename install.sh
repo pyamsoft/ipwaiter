@@ -2,7 +2,7 @@
 
 installer()
 {
-  printf -- 'Installing...\n.'
+  printf -- 'Installing...\n'
 
   # Prepare directories
   mkdir -p "${DESTDIR}/usr/bin" || return 1
@@ -24,16 +24,13 @@ installer()
 
 uninstaller()
 {
-  printf -- 'Uninstalling...\n.'
+  printf -- 'Uninstalling...\n'
 
   # Remove script
   rm -f "${DESTDIR}/usr/bin/ipwaiter" || return 1
 
   # Remove configuration directory
   rm -r -f "${DESTDIR}/etc/ipwaiter" || return 1
-
-  # Stop the service
-  systemctl disable ipwaiter.service || return 1
 
   # Remove the service
   rm -f "${DESTDIR}/usr/lib/systemd/system/ipwaiter.service" || return 1
