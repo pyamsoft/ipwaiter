@@ -88,6 +88,10 @@ create_chains_if_needed()
     iptables -N output_orders || return 1
   fi
 
+  if ! iptables -L logdrop > /dev/null 2>&1; then
+    iptables -N logdrop || return 1
+  fi
+
   return 0
 }
 
@@ -114,6 +118,18 @@ check_chain()
 }
 
 ##
+# Creates the logdrop chain which can be used to quickly log and block packets
+create_logdrop()
+{
+  if ! iptables -L logdrop > /dev/null 2>&1; then
+    # Create the chain
+    iptables -N logdrop || return 1
+    iptables -A logdrop -m limit --limit 5/min -j LOG --log-prefix "[BLOCKED] " || return 1
+    iptables -A logdrop -j REJECT --reject-with icmp-proto-unreachable || return 1
+  fi
+}
+
+##
 # Load or delete orders in the iptables
 # $1 - chain type, INPUT, FORWARD, OUTPUT
 # $2 - order name
@@ -131,6 +147,7 @@ handle_order()
 
       # Add
       if [ "${handle_order__arg}" -eq 1 ]; then
+        create_logdrop || return 1
         # Only make the order if it does not already exist
         if ! iptables -L "order_${handle_order__name}" > /dev/null 2>&1; then
           printf -- 'ipwaiter is placing order: %s\n' "${handle_order__name}"
@@ -250,6 +267,9 @@ fire_waiter()
 
   iptables -F output_orders > /dev/null 2>&1
   iptables -X output_orders > /dev/null 2>&1
+
+  iptables -F logdrop > /dev/null 2>&1
+  iptables -X logdrop > /dev/null 2>&1
 
   printf -- 'Fired ipwaiter\n'
   return 0
