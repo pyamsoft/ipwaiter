@@ -1,3 +1,2 @@
--m limit --limit 5/min -j LOG --log-prefix "[BLOCKED] "
--j REJECT --reject-with icmp-proto-unreachable
+-p icmp -j logdrop
 
