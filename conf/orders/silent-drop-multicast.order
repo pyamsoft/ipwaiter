@@ -7,5 +7,5 @@
 -p udp -m udp -d 224.0.0.251 --sport 5353 --dport 5353 -j REJECT
 
 # Don't know what else it is, so we let log drop it
--m limit --limit 5/min -j LOG --log-prefix "[MULTICAST BLOCKED] "
--j REJECT
+-d 224.0.0.251 -m limit --limit 5/min -j LOG --log-prefix "[MULTICAST BLOCKED] "
+-d 224.0.0.251 -j REJECT
