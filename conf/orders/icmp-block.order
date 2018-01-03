@@ -1,3 +1,4 @@
+# Block all ICMP packets with custom log message
 -p icmp -m limit --limit 5/min -j LOG --log-prefix "[ICMP BLOCKED] "
--p icmp logdrop -j REJECT
+-p icmp -j REJECT
 

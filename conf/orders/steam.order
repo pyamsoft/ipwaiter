@@ -1,4 +1,4 @@
-# Steam
+# Opens ports to host local Steam server
 -p tcp -m tcp --dport 27014:27050 -j ACCEPT
 -p udp -m udp --dport 4380 -j ACCEPT
 -p udp -m udp --dport 27000:27037 -j ACCEPT

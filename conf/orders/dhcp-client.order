@@ -1,2 +1,3 @@
+# Allow DHCP client connections
 -p udp -m udp --sport 67 --dport 68 -j ACCEPT
 
