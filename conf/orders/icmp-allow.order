@@ -1,0 +1,6 @@
+# Allow all ICMP
+# Make sure to apply before icmp-block.order
+# Make sure to apply before icmp-request.order
+-p icmp -j ACCEPT
+
+
