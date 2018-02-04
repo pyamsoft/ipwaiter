@@ -51,7 +51,14 @@ print_usage()
       hire
       rehire
       fire
-  ' "${__program}" "${__version}"
+
+    Available ORDER arguments are contained in "%s"
+
+    Available CHAIN are:
+      input   | INPUT
+      forward | FORWARD
+      output  | OUTPUT
+' "${__program}" "${__version}" "${__orders_dir}"
 }
 
 ##
@@ -312,7 +319,9 @@ main()
     add)
       shift
 
-      if [ -z "$1" ]; then
+      # Case insensitive
+      main__chain="$(printf -- '%s' "$1" | tr '[:lower:]' '[:upper:]')"
+      if [ -z "${main__chain}" ]; then
         error "Must pass CHAIN to add command"
         print_usage
         return 1
@@ -324,13 +333,16 @@ main()
         return 1
       fi
 
-      check_chain "$1" || return 1
-      add_order "$1" "$2" || return 1
+      check_chain "${main__chain}" || return 1
+      add_order "${main__chain}" "$2" || return 1
+      unset main__chain
       ;;
     remove)
       shift
 
-      if [ -z "$1" ]; then
+      # Case insensitive
+      main__chain="$(printf -- '%s' "$1" | tr '[:lower:]' '[:upper:]')"
+      if [ -z "${main__chain}" ]; then
         error "Must pass CHAIN to add command"
         print_usage
         return 1
@@ -342,8 +354,9 @@ main()
         return 1
       fi
 
-      check_chain "$1" || return 1
-      delete_order "$1" "$2" || return 1
+      check_chain "${main__chain}" || return 1
+      delete_order "${main__chain}" "$2" || return 1
+      unset main__chain
       ;;
     list)
       list_orders || return 1
