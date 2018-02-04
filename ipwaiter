@@ -19,7 +19,7 @@
 #   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 __program="$(basename "$0")"
-__version="0.0.1"
+__version="0.0.2"
 __system_dir="/etc/ipwaiter"
 __system_conf="${__system_dir}/system.conf"
 __orders_dir="${__system_dir}/orders"
