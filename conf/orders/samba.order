@@ -1,0 +1,3 @@
+# Allow Samba connections to 137,138 only to ${IPWAITER_SAMBA_SRC} from ${IPWAITER_SAMBA_DST}
+-p udp -m udp --dport 137 -s "${IPWAITER_SAMBA_SRC:-192.168.1.1/32}" -d "${IPWAITER_SAMBA_DST:-192.168.1.255/32}" -j ACCEPT
+-p udp -m udp --dport 138 -s "${IPWAITER_SAMBA_SRC:-192.168.1.1/32}" -d "${IPWAITER_SAMBA_DST:-192.168.1.255/32}" -j ACCEPT
