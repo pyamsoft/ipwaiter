@@ -149,7 +149,27 @@ handle_order()
             # Trim any leading or trailing spaces from the order
             order_line="$(printf -- '%s' "${order_line}" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
             if [ -n "${order_line}" ]; then
-              eval "iptables -A order_${handle_order__name} ${order_line}" > /dev/null || return 1
+              order_table="$(printf -- '%s' "${order_line}" | awk '{print $1}')"
+              case "${order_table}" in
+                raw)
+                  ;;
+                filter)
+                  ;;
+                mangle)
+                  ;;
+                nat)
+                  ;;
+                *)
+                  error "Invalid table name: %s" "${order_table}"
+                  return 1
+              esac
+
+              order_command="${order_line#${order_table}}"
+              eval "iptables -t ${order_table} -A order_${handle_order__name} ${order_command}" > /dev/null || return 1
+
+              unset order_table
+              unset order_command
+              unset order_line
             fi
           done
 
