@@ -1,4 +1,3 @@
 # Allow icmp echo-requests (ping as client)
 # Make sure to apply before icmp-block.order
--p icmp --icmp-type echo-request -j ACCEPT
-
+filter  -p icmp --icmp-type echo-request -j ACCEPT

@@ -1,5 +1,5 @@
 # Allow Samba connections to UDP 137,138 TCP 139,445 only to ${IPWAITER_SAMBA_IP} and from ${IPWAITER_SAMBA_IP}
--p udp -m udp --dport 137 -s "${IPWAITER_SAMBA_IP:-192.168.1.0/24}" -d "${IPWAITER_SAMBA_IP:-192.168.1.0/24}" -j ACCEPT
--p udp -m udp --dport 138 -s "${IPWAITER_SAMBA_IP:-192.168.1.0/24}" -d "${IPWAITER_SAMBA_IP:-192.168.1.0/24}" -j ACCEPT
--p tcp -m tcp --dport 139 -s "${IPWAITER_SAMBA_IP:-192.168.1.0/24}" -d "${IPWAITER_SAMBA_IP:-192.168.1.0/24}" -j ACCEPT
--p tcp -m tcp --dport 445 -s "${IPWAITER_SAMBA_IP:-192.168.1.0/24}" -d "${IPWAITER_SAMBA_IP:-192.168.1.0/24}" -j ACCEPT
+filter  -p udp -m udp --dport 137 -s "${IPWAITER_SAMBA_IP:-192.168.1.0/24}" -d "${IPWAITER_SAMBA_IP:-192.168.1.0/24}" -j ACCEPT
+filter  -p udp -m udp --dport 138 -s "${IPWAITER_SAMBA_IP:-192.168.1.0/24}" -d "${IPWAITER_SAMBA_IP:-192.168.1.0/24}" -j ACCEPT
+filter  -p tcp -m tcp --dport 139 -s "${IPWAITER_SAMBA_IP:-192.168.1.0/24}" -d "${IPWAITER_SAMBA_IP:-192.168.1.0/24}" -j ACCEPT
+filter  -p tcp -m tcp --dport 445 -s "${IPWAITER_SAMBA_IP:-192.168.1.0/24}" -d "${IPWAITER_SAMBA_IP:-192.168.1.0/24}" -j ACCEPT

@@ -1,4 +1,4 @@
 # Allow SSH connections to ${IPWAITER_SSHD_PORT} only on network ${IPWAITER_SSHD_NETWORK}
--p tcp -m tcp --dport "${IPWAITER_SSHD_PORT:-22}" -s "${IPWAITER_SSHD_NETWORK:-192.168.1.0/24}" -j ACCEPT
+filter  -p tcp -m tcp --dport "${IPWAITER_SSHD_PORT:-22}" -s "${IPWAITER_SSHD_NETWORK:-192.168.1.0/24}" -j ACCEPT
 
 
