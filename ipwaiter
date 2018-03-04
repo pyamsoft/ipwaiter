@@ -58,6 +58,10 @@ print_usage()
       input   | INPUT
       forward | FORWARD
       output  | OUTPUT
+
+    NOTE: If you specify your table with the advanced "raw" table
+          then chain will be ignored and explicitly set to the raw
+          table OUTPUT chain.
 ' "${__program}" "${__version}" "${__orders_dir}"
 }
 
@@ -150,22 +154,28 @@ handle_order()
             order_line="$(printf -- '%s' "${order_line}" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
             if [ -n "${order_line}" ]; then
               order_table="$(printf -- '%s' "${order_line}" | awk '{print $1}')"
+
+              order_with_chain=1
               case "${order_table}" in
                 raw)
+                  order_with_chain=0
                   ;;
                 filter)
-                  ;;
-                mangle)
-                  ;;
-                nat)
+                  order_with_chain=1
                   ;;
                 *)
-                  error "Invalid table name: %s" "${order_table}"
+                  error "Unsupported table name: %s" "${order_table}"
                   return 1
               esac
 
               order_command="${order_line#${order_table}}"
-              eval "iptables -t ${order_table} -A order_${handle_order__name} ${order_command}" > /dev/null || return 1
+              if [ "${order_with_chain}" -eq 1 ]; then
+                # Place order on specific chain
+                eval "iptables -t ${order_table} -A order_${handle_order__name} ${order_command}" > /dev/null || return 1
+              else
+                # Place order on OUTPUT chain with commend
+                eval "iptables -t ${order_table} -A OUTPUT -m comment --comment 'ipwaiter: ${handle_order__name}' ${order_command}" > /dev/null || return 1
+              fi
 
               unset order_table
               unset order_command
