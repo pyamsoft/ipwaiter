@@ -39,6 +39,9 @@ class Waiter:
         return name, table, chain, parent, order
 
     def add_order(self, order, raw, opts):
+        self._add_order(order, raw, opts, True)
+
+    def _add_order(self, order, raw, opts, report):
         if not order:
             Logger.fatal("Cannot add empty order")
 
@@ -46,20 +49,23 @@ class Waiter:
         o_chain = order[0]
 
         name, table, chain, parent, path = self._verify(o_name, raw, o_chain)
-        self._place_order(name, table, chain, parent, path, raw, opts)
+        self._place_order(name, table, chain, parent, path, raw, opts, report)
 
-    def _place_order(self, name, table, chain, parent, path, raw, opts):
+    def _place_order(self, name, table, chain, parent, path, raw, opts, report):
         # Stop if the chain exists
         if self._iptables.exists(table, chain):
-            Logger.log("ipwaiter has already placed order: {}".format(name))
+            if report:
+                Logger.log("ipwaiter has already placed order: {}".format(name))
             return
 
-        Logger.log("ipwaiter is placing order: {}".format(name))
+        if report:
+            Logger.log("ipwaiter is placing order: {}".format(name))
 
         # Create the chain first
         if not self._iptables.create(table, chain):
-            Logger.fatal("Failed to create chain: {} for table: {}"
-                         .format(chain, table))
+            if report:
+                Logger.fatal("Failed to create chain: {} for table: {}"
+                             .format(chain, table))
 
         # Add all of the rules for the
         reader = OrderReader(path, opts)
@@ -68,15 +74,18 @@ class Waiter:
             if ((raw and read_table == "raw") or
                     (not raw and read_table == "filter")):
                 if not self._iptables.add(read_table, chain, read_line):
-                    Logger.fatal("Failed add. table: {}, chain: {}, rule: {}"
-                                 .format(read_table, chain, read_line))
+                    if report:
+                        Logger.fatal("Failed add. table {}, chain {}, rule {}"
+                                     .format(read_table, chain, read_line))
 
         # Link the new chain to the parent chain
         if not self._iptables.link(table, parent, chain):
-            Logger.fatal("Failed to link chain: {} table: {} to: {}"
-                         .format(chain, table, parent))
+            if report:
+                Logger.fatal("Failed to link chain: {} table: {} to: {}"
+                             .format(chain, table, parent))
 
-        Logger.log("ipwaiter has placed order: {}".format(name))
+        if report:
+            Logger.log("ipwaiter has placed order: {}".format(name))
 
     def delete_order(self, order, raw):
         self._delete_order(order, raw, True)
