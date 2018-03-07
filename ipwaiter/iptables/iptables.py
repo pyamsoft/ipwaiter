@@ -17,13 +17,7 @@ table: {}, chain: {}, args: {}""".format(table, chain, args))
         else:
             command = ["-t", table, "-A", chain]
             command += args
-            result = self._cmd(
-                command,
-                _no_out=True,
-                _no_err=True,
-                _no_pipe=True
-            )
-            return result.exit_code == 0
+            return self._safe_command(*command)
 
     def link(self, table, parent_chain, target_chain):
         if not table or not parent_chain or not target_chain:
@@ -31,40 +25,25 @@ table: {}, chain: {}, args: {}""".format(table, chain, args))
 table: {}, parent_chain: {}, target_chain: {}"""
                          .format(table, parent_chain, target_chain))
         else:
-            result = self._cmd(
+            return self._safe_command(
                 "-t", table,
                 "-A", parent_chain,
                 "-j", target_chain
             )
-            return result.exit_code == 0
 
     def create(self, table, chain):
         if not table or not chain:
             Logger.fatal("""Failed create() iptables, missing argument
 table: {}, chain: {}""".format(table, chain))
         else:
-            result = self._cmd(
-                "-t", table,
-                "-N", chain,
-                _no_out=True,
-                _no_err=True,
-                _no_pipe=True
-            )
-            return result.exit_code == 0
+            return self._safe_command("-t", table, "-N", chain)
 
     def flush(self, table, chain):
         if not table or not chain:
             Logger.fatal("""Failed flush() iptables, missing argument
 table: {}, chain: {}""".format(table, chain))
         else:
-            result = self._cmd(
-                "-t", table,
-                "-F", chain,
-                _no_out=True,
-                _no_err=True,
-                _no_pipe=True
-            )
-            return result.exit_code == 0
+            return self._safe_command("-t", table, "-F", chain)
 
     def unlink(self, table, parent_chain, target_chain):
         if not table or not parent_chain or not target_chain:
@@ -72,45 +51,31 @@ table: {}, chain: {}""".format(table, chain))
 table: {}, parent_chain: {}, target_chain: {}"""
                          .format(table, parent_chain, target_chain))
         else:
-            result = self._cmd(
+            return self._safe_command(
                 "-t", table,
                 "-D", parent_chain,
-                "-j", target_chain,
-                _no_out=True,
-                _no_err=True,
-                _no_pipe=True
+                "-j", target_chain
             )
-            return result.exit_code == 0
 
     def delete(self, table, chain):
         if not table or not chain:
             Logger.fatal("""Failed delete() from iptables, missing argument
 table: {}, chain: {}""".format(table, chain))
         else:
-            result = self._cmd(
-                "-t", table,
-                "-X", chain,
-                _no_out=True,
-                _no_err=True,
-                _no_pipe=True
-            )
-            return result.exit_code == 0
+            return self._safe_command("-t", table, "-X", chain)
 
     def exists(self, table, chain):
         if not table or not chain:
             Logger.fatal("""Failed exists() in iptables, missing argument
 table: {}, chain: {}""".format(table, chain))
         else:
-            try:
-                result = self._cmd(
-                    "-t", table,
-                    "-L", chain,
-                    _no_out=True,
-                    _no_err=True,
-                    _no_pipe=True
-                )
-                return result.exit_code == 0
-            except sh.ErrorReturnCode:
-                # We ignore the error here since this will fail if the
-                # chain does not exist, and its too noisy
-                return False
+            return self._safe_command("-t", table, "-L", chain)
+
+    def _safe_command(self, *args):
+        try:
+            result = self._cmd(args, _no_out=True, _no_err=True, _no_pipe=True)
+            return result.exit_code == 0
+        except sh.ErrorReturnCode:
+            # We ignore the error here since this will fail if the
+            # chain does not exist, and its too noisy
+            return False

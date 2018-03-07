@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 
 import os
+import re
+
+import ipwaiter.utils as utils
 
 from ..iptables.iptables import Iptables
 from ..iptables.preconditions import Preconditions
@@ -70,50 +73,92 @@ class Waiter:
 
         # Link the new chain to the parent chain
         if not self._iptables.link(table, parent, chain):
-            Logger.fatal("Failed to link chain: {} for table: {} to: {}"
+            Logger.fatal("Failed to link chain: {} table: {} to: {}"
                          .format(chain, table, parent))
 
         Logger.log("ipwaiter has placed order: {}".format(name))
 
     def delete_order(self, order, raw):
+        self._delete_order(order, raw, True)
+
+    def _delete_order(self, order, raw, report):
         if not order:
             Logger.fatal("Cannot delete empty order")
 
         o_name = order[1]
         o_chain = order[0]
         name, table, chain, parent, path = self._verify(o_name, raw, o_chain)
-        self._remove_order(name, table, chain, parent)
+        self._remove_order(name, table, chain, parent, report)
 
-    def _remove_order(self, name, table, chain, parent):
+    def _remove_order(self, name, table, chain, parent, report):
         # Stop if the chain does not exist
         if not self._iptables.exists(table, chain):
-            Logger.log("ipwaiter has never placed order: {}".format(name))
+            if report:
+                Logger.log("ipwaiter has never placed order: {}".format(name))
             return
 
-        Logger.log("ipwaiter is removing order: {}".format(name))
+        if report:
+            Logger.log("ipwaiter is removing order: {}".format(name))
 
-        # Flush the chain first
-        if not self._iptables.flush(table, chain):
-            Logger.fatal("Failed to flush chain: {} for table: {}"
-                         .format(chain, table))
-
-        # Unlink the chain second
+        # Unlink the chain first so we know its valid
         if not self._iptables.unlink(table, parent, chain):
-            Logger.fatal("Failed to unlink chain: {} for table: {} from: {}"
-                         .format(chain, table, parent))
+            if report:
+                Logger.fatal("Failed to unlink chain: {} table: {} from: {}"
+                             .format(chain, table, parent))
+            else:
+                return
+
+        # Flush the chain second
+        if not self._iptables.flush(table, chain):
+            if report:
+                Logger.fatal("Failed to flush chain: {} for table: {}"
+                             .format(chain, table))
+            else:
+                return
 
         # Then delete the chain
         if not self._iptables.delete(table, chain):
-            Logger.fatal("Failed to delete chain: {} for table: {}"
-                         .format(chain, table))
+            if report:
+                Logger.fatal("Failed to delete chain: {} for table: {}"
+                             .format(chain, table))
+            else:
+                return
 
-        Logger.log("ipwaiter has removed order: {}".format(name))
+        if report:
+            Logger.log("ipwaiter has removed order: {}".format(name))
 
     def hire_waiter(self):
         Logger.log("Hire waiter")
 
     def fire_waiter(self):
-        Logger.log("Fire waiter")
+        Logger.log("Firing old ipwaiter")
+
+        for order in os.listdir(self._order_dir):
+            abspath = utils.to_absolute_path(self._order_dir, order)
+            if os.path.isfile(abspath) and abspath.endswith(".order"):
+                base_order = os.path.basename(abspath)
+                base_order = re.sub("\.order$", "", base_order)
+
+                # Delete all not raw
+                self._delete_order(("input", base_order), False, False)
+                self._delete_order(("forward", base_order), False, False)
+                self._delete_order(("output", base_order), False, False)
+
+                # Delete all raw
+                self._delete_order(("output", base_order), True, False)
+
+        # Delete the order chains
+        self._iptables.flush("filter", "input_orders")
+        self._iptables.flush("filter", "forward_orders")
+        self._iptables.flush("filter", "output_orders")
+        self._iptables.delete("filter", "input_orders")
+        self._iptables.delete("filter", "forward_orders")
+        self._iptables.delete("filter", "output_orders")
+
+        self._iptables.flush("raw", "output_orders")
+        self._iptables.delete("raw", "output_orders")
+
+        Logger.log("Fired ipwaiter")
 
     def rehire_waiter(self):
         self.fire_waiter()
