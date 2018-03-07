@@ -5,13 +5,9 @@ import os
 import sys
 
 from .orders.lister import ListOrders
+from .orders.waiter import Waiter
 from .logger.logger import Logger
 from ._version import __version__
-
-
-class Constants:
-    IPWAITER_HIRE = 1
-    IPWAITER_FIRE = 2
 
 
 def _initialize_parser():
@@ -38,20 +34,20 @@ def _initialize_parser():
     parser.add_argument(
         "-H", "--hire",
         action="store_const",
-        dest="waiter",
-        const=Constants.IPWAITER_HIRE,
+        dest="hire",
+        const=True,
         help="Runs all the orders listed in system.conf")
     parser.add_argument(
         "-F", "--fire",
         action="store_const",
-        dest="waiter",
-        const=Constants.IPWAITER_FIRE,
+        dest="fire",
+        const=True,
         help="Removes all the orders listed in system.conf")
     parser.add_argument(
         "--rehire",
         action="store_const",
-        dest="waiter",
-        const=(Constants.IPWAITER_FIRE + Constants.IPWAITER_HIRE),
+        dest="rehire",
+        const=True,
         help="Fires the old waiter and Hires a new one")
     parser.add_argument(
         "-A", "--add",
@@ -81,7 +77,9 @@ def _parse_options():
     parsed = parser.parse_args()
 
     # If nothing at all was picked, show help
-    if not parsed.delete and not parsed.add and not parsed.waiter and not parsed.list_orders:
+    if (not parsed.delete and not parsed.add and
+            not parsed.hire and not parsed.fire and not parsed.rehire and
+            not parsed.list_orders):
         parser.print_help()
         sys.exit(0)
 
@@ -105,9 +103,27 @@ def main():
     if parsed.orders:
         order_dir = parsed.orders
 
-    if parsed.add or parsed.delete:
-        pass
+    if parsed.add and parsed.delete:
+        Logger.log("Must specify only one of either --add or --delete")
+        sys.exit(1)
+
+    if (parsed.hire and parsed.fire) or (parsed.rehire and parsed.hire) \
+            or (parsed.fire and parsed.rehire):
+        Logger.log("Must specify only one of either --fire or --hire or --rehire")
+        sys.exit(1)
+
+    if parsed.add:
+        # TODO: create --src and --dst options
+        Waiter(order_dir).add_order(parsed.add, parsed.raw, None)
+    elif parsed.delete:
+        Waiter(order_dir).delete_order(parsed.delete, parsed.raw)
     elif parsed.list_orders:
         ListOrders(order_dir).list_all()
-    elif parsed.waiter:
-        pass
+    elif parsed.hire:
+        Waiter(order_dir).hire_waiter()
+    elif parsed.fire:
+        Waiter(order_dir).fire_waiter()
+    elif parsed.rehire:
+        Waiter(order_dir).rehire_waiter()
+    else:
+        Logger.fatal("Reached the end of the script without a valid command!")
