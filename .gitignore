@@ -1,0 +1,16 @@
+# Ignore virtual environment
+venv
+
+# Ignore idea folder
+!.idea/codeStyles/Project.xml
+.idea
+
+# Ignore build caches and files
+*.pyc
+__pycache__
+
+# Builds
+build
+dist
+*.egg-info
+

@@ -1,11 +1,10 @@
 # Samba needs this to begin soliciting connections as a client
-# Targets 'raw' table
 raw   -p udp -m udp --dport 137 -j CT --helper netbios-ns
 
 # Allow Samba connections to UDP 137,138 TCP 139,445 only to ${IPWAITER_SAMBA_IP} and from ${IPWAITER_SAMBA_IP}
-filter  -p udp -m udp --dport 137 -s "${IPWAITER_SAMBA_IP:-192.168.1.0/24}" -d "${IPWAITER_SAMBA_IP:-192.168.1.0/24}" -j ACCEPT
-filter  -p udp -m udp --dport 138 -s "${IPWAITER_SAMBA_IP:-192.168.1.0/24}" -d "${IPWAITER_SAMBA_IP:-192.168.1.0/24}" -j ACCEPT
+filter  -p udp -m udp --dport 137 -s __ipwaiter_src -d __ipwaiter_dst -j ACCEPT
+filter  -p udp -m udp --dport 138 -s __ipwaiter_src -d __ipwaiter_dst -j ACCEPT
 
 # Additional Samba ports
-# filter  -p tcp -m tcp --dport 139 -s "${IPWAITER_SAMBA_IP:-192.168.1.0/24}" -d "${IPWAITER_SAMBA_IP:-192.168.1.0/24}" -j ACCEPT
-# filter  -p tcp -m tcp --dport 445 -s "${IPWAITER_SAMBA_IP:-192.168.1.0/24}" -d "${IPWAITER_SAMBA_IP:-192.168.1.0/24}" -j ACCEPT
+# filter  -p tcp -m tcp --dport 139 -s __ipwaiter_src -d __ipwaiter_dst -j ACCEPT
+# filter  -p tcp -m tcp --dport 445 -s __ipwaiter_src -d __ipwaiter_dst -j ACCEPT
