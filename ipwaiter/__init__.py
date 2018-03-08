@@ -101,6 +101,7 @@ def main():
 
     # Set or override the order_dir
     order_dir = "/etc/ipwaiter/orders"
+    system_conf = "/etc/ipwaiter/system.conf"
     if parsed.orders:
         order_dir = parsed.orders
 
@@ -116,16 +117,16 @@ def main():
     iptables = Iptables()
     if parsed.add:
         # TODO: create --src and --dst options
-        Waiter(iptables, order_dir).add_order(parsed.add, parsed.raw, None)
+        Waiter(iptables, order_dir, system_conf).add_order(parsed.add, parsed.raw, None)
     elif parsed.delete:
-        Waiter(iptables, order_dir).delete_order(parsed.delete, parsed.raw)
+        Waiter(iptables, order_dir, system_conf).delete_order(parsed.delete, parsed.raw)
     elif parsed.list_orders:
         ListOrders(order_dir).list_all()
     elif parsed.hire:
-        Waiter(iptables, order_dir).hire_waiter()
+        Waiter(iptables, order_dir, system_conf).hire_waiter()
     elif parsed.fire:
-        Waiter(iptables, order_dir).fire_waiter()
+        Waiter(iptables, order_dir, system_conf).fire_waiter()
     elif parsed.rehire:
-        Waiter(iptables, order_dir).rehire_waiter()
+        Waiter(iptables, order_dir, system_conf).rehire_waiter()
     else:
         Logger.fatal("Reached the end of the script without a valid command!")

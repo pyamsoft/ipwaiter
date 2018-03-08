@@ -12,13 +12,17 @@ from .reader import OrderReader
 
 class Waiter:
 
-    def __init__(self, iptables, order_dir):
+    def __init__(self, iptables, order_dir, system_conf):
         if not os.path.isdir(order_dir):
             Logger.fatal("Invalid order directory given: {}".format(order_dir))
+
+        if not os.path.isfile(order_dir):
+            Logger.fatal("Invalid system conf given: {}".format(system_conf))
 
         if not iptables:
             Logger.fatal("Invalid iptables handler given: {}".format(iptables))
 
+        self._system_conf = system_conf
         self._order_dir = order_dir
         self._iptables = iptables
 
