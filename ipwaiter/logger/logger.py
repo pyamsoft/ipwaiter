@@ -4,32 +4,33 @@ import sys
 
 
 class Logger:
+    """Static flag controlling whether the logger should output or not"""
+    enabled = False
 
     def __init__(self):
         """Logger is purely a static implementation, no class instances"""
         raise NotImplementedError("No instances of Logger allowed")
 
     @staticmethod
-    def log(message, *args):
-        """Log a message to stdout"""
-        if args:
-            print("{}".format(message), args, file=sys.stdout)
-        else:
-            print("{}".format(message), file=sys.stdout)
+    def log(message, *args, **kwargs):
+        """Log a message to stdout without needing debug mode"""
+        print("{}".format(message), *args, **kwargs, file=sys.stdout)
 
     @staticmethod
-    def e(message, *args):
-        """Log an error message to stderr"""
-        if args:
-            print("ERROR  {}".format(message), args, file=sys.stderr)
-        else:
-            print("ERROR  {}".format(message), file=sys.stderr)
+    def d(message, *args, **kwargs):
+        """Log a message to stdout if debug mode is on"""
+        if Logger.enabled:
+            print("DEBUG  {}".format(message), *args, **kwargs, file=sys.stderr)
 
     @staticmethod
-    def fatal(message, *args):
+    def e(message, *args, **kwargs):
+        """Log an error message to stderr if debug mode is on"""
+        if Logger.enabled:
+            print("ERROR  {}".format(message), *args, **kwargs, file=sys.stderr)
+
+    @staticmethod
+    def fatal(message, *args, **kwargs):
         """Log an error message to stderr and exit"""
-        if args:
-            print("FATAL  {}".format(message), args, file=sys.stderr)
-        else:
-            print("FATAL  {}".format(message), file=sys.stderr)
+        print("FATAL  {}".format(message), *args, **kwargs, file=sys.stderr)
         sys.exit(1)
+

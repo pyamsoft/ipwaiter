@@ -19,11 +19,11 @@ class OrderReader:
         except OSError as e:
             Logger.e("Unable to read order file")
             Logger.e(e)
-            return []
+            yield ("", "")
         else:
             with order:
-                result = []
-                for line in order.readlines():
+                line = order.readline()
+                while line:
                     # Remove all whitespace
                     line = line.strip()
 
@@ -57,9 +57,8 @@ class OrderReader:
 
                         # We format this so weirdly to make it easier
                         # for waiter.py to consume
-                        result.append((table, line.split()))
-
-                return result
+                        yield (table, line.split())
+                    line = order.readline()
 
     def as_lines(self):
         return self._get_order()
