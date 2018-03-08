@@ -71,6 +71,18 @@ def _initialize_parser():
         dest="orders",
         metavar="DIR",
         help="Directory with all the ORDER files")
+    parser.add_argument(
+        "-s", "--src",
+        action="store",
+        dest="src",
+        metavar="SRC",
+        help="Source IP address block for orders")
+    parser.add_argument(
+        "-d", "--dst",
+        action="store",
+        dest="dst",
+        metavar="DST",
+        help="Destination IP address block for orders")
     return parser
 
 
@@ -114,11 +126,15 @@ def main():
         Logger.log("Must specify only one of either --fire or --hire or --rehire")
         sys.exit(1)
 
+    opts = {}
+    if parsed.src:
+        opts["src"] = parsed.src
+    if parsed.dst:
+        opts["dst"] = parsed.dst
+
     iptables = Iptables()
     system_conf = SystemConfParser("/etc/ipwaiter/system.conf")
-    opts = None
     if parsed.add:
-        # TODO: create --src and --dst options
         Waiter(iptables, order_dir, system_conf).add_order(parsed.add, parsed.raw, opts)
     elif parsed.delete:
         Waiter(iptables, order_dir, system_conf).delete_order(parsed.delete, parsed.raw)
