@@ -16,9 +16,6 @@ class Waiter:
         if not os.path.isdir(order_dir):
             Logger.fatal("Invalid order directory given: {}".format(order_dir))
 
-        if not os.path.isfile(order_dir):
-            Logger.fatal("Invalid system conf given: {}".format(system_conf))
-
         if not iptables:
             Logger.fatal("Invalid iptables handler given: {}".format(iptables))
 
@@ -143,8 +140,26 @@ class Waiter:
         if report:
             Logger.log("ipwaiter has removed order: {}".format(name))
 
-    def hire_waiter(self):
-        Logger.log("Hire waiter")
+    def hire_waiter(self, opts):
+        Logger.log("Hiring new ipwaiter")
+        order_dict = self._system_conf.parse()
+        for order in order_dict["FILTER_INPUT"]:
+            order = order.strip()
+            if order:
+                self._add_order(("input", order), False, opts, False)
+        for order in order_dict["FILTER_FORWARD"]:
+            order = order.strip()
+            if order:
+                self._add_order(("forward", order), False, opts, False)
+        for order in order_dict["FILTER_OUTPUT"]:
+            order = order.strip()
+            if order:
+                self._add_order(("output", order), False, opts, False)
+        for order in order_dict["RAW_OUTPUT"]:
+            order = order.strip()
+            if order:
+                self._add_order(("output", order), True, opts, False)
+        Logger.log("Hired ipwaiter")
 
     def fire_waiter(self):
         Logger.log("Firing old ipwaiter")
@@ -176,6 +191,6 @@ class Waiter:
 
         Logger.log("Fired ipwaiter")
 
-    def rehire_waiter(self):
+    def rehire_waiter(self, opts):
         self.fire_waiter()
-        self.hire_waiter()
+        self.hire_waiter(opts)

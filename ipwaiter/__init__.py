@@ -5,9 +5,10 @@ import os
 import sys
 
 from .iptables.iptables import Iptables
+from .logger.logger import Logger
 from .orders.lister import ListOrders
 from .orders.waiter import Waiter
-from .logger.logger import Logger
+from .orders.systemconf import SystemConfParser
 from ._version import __version__
 
 
@@ -101,7 +102,6 @@ def main():
 
     # Set or override the order_dir
     order_dir = "/etc/ipwaiter/orders"
-    system_conf = "/etc/ipwaiter/system.conf"
     if parsed.orders:
         order_dir = parsed.orders
 
@@ -115,18 +115,20 @@ def main():
         sys.exit(1)
 
     iptables = Iptables()
+    system_conf = SystemConfParser("/etc/ipwaiter/system.conf")
+    opts = None
     if parsed.add:
         # TODO: create --src and --dst options
-        Waiter(iptables, order_dir, system_conf).add_order(parsed.add, parsed.raw, None)
+        Waiter(iptables, order_dir, system_conf).add_order(parsed.add, parsed.raw, opts)
     elif parsed.delete:
         Waiter(iptables, order_dir, system_conf).delete_order(parsed.delete, parsed.raw)
     elif parsed.list_orders:
         ListOrders(order_dir).list_all()
     elif parsed.hire:
-        Waiter(iptables, order_dir, system_conf).hire_waiter()
+        Waiter(iptables, order_dir, system_conf).hire_waiter(opts)
     elif parsed.fire:
         Waiter(iptables, order_dir, system_conf).fire_waiter()
     elif parsed.rehire:
-        Waiter(iptables, order_dir, system_conf).rehire_waiter()
+        Waiter(iptables, order_dir, system_conf).rehire_waiter(opts)
     else:
         Logger.fatal("Reached the end of the script without a valid command!")
