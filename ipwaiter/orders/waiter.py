@@ -5,7 +5,6 @@ import re
 
 import ipwaiter.utils as utils
 
-from ..iptables.iptables import Iptables
 from ..iptables.preconditions import Preconditions
 from ..logger.logger import Logger
 from .reader import OrderReader
@@ -13,14 +12,18 @@ from .reader import OrderReader
 
 class Waiter:
 
-    def __init__(self, order_dir):
+    def __init__(self, iptables, order_dir):
         if not os.path.isdir(order_dir):
             Logger.fatal("Invalid order directory given: {}".format(order_dir))
+
+        if not iptables:
+            Logger.fatal("Invalid iptables handler given: {}".format(iptables))
+
         self._order_dir = order_dir
-        self._iptables = Iptables()
+        self._iptables = iptables
 
     def _verify(self, name, raw, chain):
-        preconditions = Preconditions(self._order_dir, raw)
+        preconditions = Preconditions(self._iptables, self._order_dir, raw)
 
         # Create the required chains
         preconditions.create_chains_if_needed()

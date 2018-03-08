@@ -4,6 +4,7 @@ import argparse
 import os
 import sys
 
+from .iptables.iptables import Iptables
 from .orders.lister import ListOrders
 from .orders.waiter import Waiter
 from .logger.logger import Logger
@@ -112,18 +113,19 @@ def main():
         Logger.log("Must specify only one of either --fire or --hire or --rehire")
         sys.exit(1)
 
+    iptables = Iptables()
     if parsed.add:
         # TODO: create --src and --dst options
-        Waiter(order_dir).add_order(parsed.add, parsed.raw, None)
+        Waiter(iptables, order_dir).add_order(parsed.add, parsed.raw, None)
     elif parsed.delete:
-        Waiter(order_dir).delete_order(parsed.delete, parsed.raw)
+        Waiter(iptables, order_dir).delete_order(parsed.delete, parsed.raw)
     elif parsed.list_orders:
         ListOrders(order_dir).list_all()
     elif parsed.hire:
-        Waiter(order_dir).hire_waiter()
+        Waiter(iptables, order_dir).hire_waiter()
     elif parsed.fire:
-        Waiter(order_dir).fire_waiter()
+        Waiter(iptables, order_dir).fire_waiter()
     elif parsed.rehire:
-        Waiter(order_dir).rehire_waiter()
+        Waiter(iptables, order_dir).rehire_waiter()
     else:
         Logger.fatal("Reached the end of the script without a valid command!")

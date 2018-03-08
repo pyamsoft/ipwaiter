@@ -4,17 +4,19 @@ import os
 
 import ipwaiter.utils as utils
 
-from .iptables import Iptables
 from ..logger.logger import Logger
 
 
 class Preconditions:
 
-    def __init__(self, order_dir, raw):
+    def __init__(self, iptables, order_dir, raw):
         if not os.path.isdir(order_dir):
             Logger.fatal("Invalid order directory: {}".format(order_dir))
 
-        self._iptables = Iptables()
+        if not iptables:
+            Logger.fatal("Invalid iptables handler given: {}".format(iptables))
+
+        self._iptables = iptables
         self._order_dir = order_dir
         self._raw = raw
 
