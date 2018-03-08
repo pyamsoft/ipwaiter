@@ -63,6 +63,6 @@ package() {
   python setup.py install --root="${pkgdir}" --optimize=1
 
   # Install the systemd service file
-  install -m 644 conf/systemd/ipwaiter.service "${pkgdir}"/usr/lib/systemd/system/
+  install -m 644 conf/systemd/ipwaiter.service "${pkgdir}"/usr/lib/systemd/system
 }
 
