@@ -63,15 +63,3 @@ class OrderReader:
     def as_lines(self):
         return self._get_order()
 
-    def as_string(self):
-        result = ""
-        for (table, line) in self._get_order():
-            # Because the format is so weird for these lines so that
-            # waiter.py can consume it easier, we have to do a lot of
-            # manual massaging to get them to be display friendly
-            args = ""
-            for item in line:
-                args += "{} ".format(item)
-            args += "\n"
-            result += "{}: {}".format(table.upper(), args)
-        return result
