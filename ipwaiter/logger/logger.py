@@ -33,4 +33,3 @@ class Logger:
         """Log an error message to stderr and exit"""
         print("FATAL  {}".format(message), *args, **kwargs, file=sys.stderr)
         sys.exit(1)
-

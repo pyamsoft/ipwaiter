@@ -62,4 +62,3 @@ class OrderReader:
 
     def as_lines(self):
         return self._get_order()
-
