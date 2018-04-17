@@ -9,7 +9,7 @@ class SystemConfParser:
 
     def __init__(self, path):
         if not os.path.isfile(path):
-            Logger.fatal("Invalid system conf path given: {}".format(path))
+            Logger.fatal(f"Invalid system conf path given: {path}")
         self._path = path
 
     def _read_conf(self):
@@ -19,7 +19,7 @@ class SystemConfParser:
         try:
             src = open(self._path, mode="r")
         except OSError as e:
-            Logger.e("Cannot read content from path: {}".format(self._path))
+            Logger.e(f"Cannot read content from path: {self._path}")
             Logger.e(e)
             yield ""
         else:

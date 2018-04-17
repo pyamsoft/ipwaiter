@@ -2,4 +2,4 @@
 
 
 def to_absolute_path(directory, file):
-    return "{}/{}".format(directory, file)
+    return f"{directory}/{file}"

@@ -11,10 +11,10 @@ class Preconditions:
 
     def __init__(self, iptables, order_dir, raw):
         if not os.path.isdir(order_dir):
-            Logger.fatal("Invalid order directory: {}".format(order_dir))
+            Logger.fatal(f"Invalid order directory: {order_dir}")
 
         if not iptables:
-            Logger.fatal("Invalid iptables handler given: {}".format(iptables))
+            Logger.fatal(f"Invalid iptables handler given: {iptables}")
 
         self._iptables = iptables
         self._order_dir = order_dir
@@ -34,13 +34,13 @@ class Preconditions:
 
     def valid_chain(self, chain):
         if not chain:
-            Logger.fatal("Invalid chain, cannot check: {}".format(chain))
+            Logger.fatal(f"Invalid chain, cannot check: {chain}")
 
         # Compare the upper case input
         uppercase = chain.upper()
 
         # Transform the real chain name
-        chain = "{}_orders".format(chain.lower())
+        chain = f"{chain.lower()}_orders"
         if self._raw:
             return chain if uppercase in ["OUTPUT"] else ""
         else:
@@ -48,12 +48,12 @@ class Preconditions:
 
     def valid_order(self, order):
         if not order:
-            Logger.fatal("Invalid order, cannot check: {}".format(order))
+            Logger.fatal(f"Invalid order, cannot check: {order}")
 
         for file in os.listdir(self._order_dir):
             abspath = utils.to_absolute_path(self._order_dir, file)
             if (os.path.isfile(abspath) and abspath.endswith(".order")
-                    and os.path.basename(file) == "{}.order".format(order)):
+                    and os.path.basename(file) == f"{order}.order"):
                 return abspath
 
         return ""

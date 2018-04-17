@@ -12,7 +12,7 @@ class ListOrders:
 
     def __init__(self, order_dir):
         if not os.path.isdir(order_dir):
-            Logger.fatal("Invalid order directory: {}".format(order_dir))
+            Logger.fatal(f"Invalid order directory: {order_dir}")
         self._order_dir = order_dir
 
     def list_all(self):
@@ -23,14 +23,14 @@ class ListOrders:
                 reader = OrderReader(abspath, None)
 
                 counter += 1
-                Logger.log("From order: {}".format(order))
+                Logger.log(f"From order: {order}")
                 Logger.log("============================")
                 for (table, line) in reader.as_lines():
                     args = ""
                     for item in line:
-                        args += "{} ".format(item)
+                        args += f"{item} "
                     args += "\n"
-                    Logger.log("{}: {}".format(table.upper(), args), end="")
+                    Logger.log(f"{table.upper()}: {args}", end="")
                 Logger.log("")
 
-        Logger.log("Total order count: {}".format(counter))
+        Logger.log(f"Total order count: {counter}")

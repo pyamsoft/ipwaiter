@@ -19,7 +19,7 @@ def _initialize_parser():
     parser.add_argument(
         "-v", "--version",
         action="version",
-        version="%(prog)s {}".format(__version__),
+        version=f"%(prog)s {__version__}",
         help="Display the version and exit")
     parser.add_argument(
         "-R", "--raw",

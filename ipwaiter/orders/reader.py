@@ -9,7 +9,7 @@ class OrderReader:
 
     def __init__(self, path, opts):
         if not os.path.isfile(path):
-            Logger.fatal("Invalid order given: {}".format(path))
+            Logger.fatal(f"Invalid order given: {path}")
         self._path = path
         self._opts = opts
 

@@ -14,10 +14,10 @@ class Waiter:
 
     def __init__(self, iptables, order_dir, system_conf):
         if not os.path.isdir(order_dir):
-            Logger.fatal("Invalid order directory given: {}".format(order_dir))
+            Logger.fatal(f"Invalid order directory given: {order_dir}")
 
         if not iptables:
-            Logger.fatal("Invalid iptables handler given: {}".format(iptables))
+            Logger.fatal(f"Invalid iptables handler given: {iptables}")
 
         self._system_conf = system_conf
         self._order_dir = order_dir
@@ -31,13 +31,13 @@ class Waiter:
 
         order = preconditions.valid_order(name)
         if not order:
-            Logger.fatal("Verify failed invalid order: {}".format(name))
+            Logger.fatal(f"Verify failed invalid order: {name}")
 
         parent = preconditions.valid_chain(chain)
         if not parent:
-            Logger.fatal("Verify failed invalid chain: {}".format(chain))
+            Logger.fatal(f"Verify failed invalid chain: {chain}")
 
-        chain = "order_{}".format(name)
+        chain = f"order_{name}"
         table = "raw" if raw else "filter"
 
         return name, table, chain, parent, order
@@ -59,17 +59,16 @@ class Waiter:
         # Stop if the chain exists
         if self._iptables.exists(table, chain):
             if report:
-                Logger.log("ipwaiter has already placed order: {}".format(name))
+                Logger.log(f"ipwaiter has already placed order: {name}")
             return
 
         if report:
-            Logger.log("ipwaiter is placing order: {}".format(name))
+            Logger.log(f"ipwaiter is placing order: {name}")
 
         # Create the chain first
         if not self._iptables.create(table, chain):
             if report:
-                Logger.fatal("Failed to create chain: {} for table: {}"
-                             .format(chain, table))
+                Logger.fatal(f"Failed to create chain: {chain} for table: {table}")
 
         # Add all of the rules for the
         reader = OrderReader(path, opts)
@@ -79,17 +78,15 @@ class Waiter:
                     (not raw and read_table == "filter")):
                 if not self._iptables.add(read_table, chain, read_line):
                     if report:
-                        Logger.fatal("Failed add. table {}, chain {}, rule {}"
-                                     .format(read_table, chain, read_line))
+                        Logger.fatal(f"Failed add. table {read_line}, chain {chain}, rule {read_line}")
 
         # Link the new chain to the parent chain
         if not self._iptables.link(table, parent, chain):
             if report:
-                Logger.fatal("Failed to link chain: {} table: {} to: {}"
-                             .format(chain, table, parent))
+                Logger.fatal(f"Failed to link chain: {chain} table: {table} to: {parent}")
 
         if report:
-            Logger.log("ipwaiter has placed order: {}".format(name))
+            Logger.log(f"ipwaiter has placed order: {name}")
 
     def delete_order(self, order, raw):
         self._delete_order(order, raw, True)
@@ -107,38 +104,35 @@ class Waiter:
         # Stop if the chain does not exist
         if not self._iptables.exists(table, chain):
             if report:
-                Logger.log("ipwaiter has never placed order: {}".format(name))
+                Logger.log(f"ipwaiter has never placed order: {name}")
             return
 
         if report:
-            Logger.log("ipwaiter is removing order: {}".format(name))
+            Logger.log(f"ipwaiter is removing order: {name}")
 
         # Unlink the chain first so we know its valid
         if not self._iptables.unlink(table, parent, chain):
             if report:
-                Logger.fatal("Failed to unlink chain: {} table: {} from: {}"
-                             .format(chain, table, parent))
+                Logger.fatal(f"Failed to unlink chain: {chain} table: {table} from: {parent}")
             else:
                 return
 
         # Flush the chain second
         if not self._iptables.flush(table, chain):
             if report:
-                Logger.fatal("Failed to flush chain: {} for table: {}"
-                             .format(chain, table))
+                Logger.fatal(f"Failed to flush chain: {chain} for table: {table}")
             else:
                 return
 
         # Then delete the chain
         if not self._iptables.delete(table, chain):
             if report:
-                Logger.fatal("Failed to delete chain: {} for table: {}"
-                             .format(chain, table))
+                Logger.fatal(f"Failed to delete chain: {chain} for table: {table}")
             else:
                 return
 
         if report:
-            Logger.log("ipwaiter has removed order: {}".format(name))
+            Logger.log(f"ipwaiter has removed order: {name}")
 
     def hire_waiter(self, opts):
         Logger.log("Hiring new ipwaiter")

@@ -12,8 +12,7 @@ class Iptables:
 
     def add(self, table, chain, args):
         if not table or not chain or not args:
-            Logger.fatal("""Failed add() to iptables, missing argument
-table: {}, chain: {}, args: {}""".format(table, chain, args))
+            Logger.fatal(f"Failed add() to iptables, missing argument table: {table}, chain: {chain}, args: {args}")
         else:
             command = ["-t", table, "-A", chain]
             command += args
@@ -21,9 +20,9 @@ table: {}, chain: {}, args: {}""".format(table, chain, args))
 
     def link(self, table, parent_chain, target_chain):
         if not table or not parent_chain or not target_chain:
-            Logger.fatal("""Failed link() to iptables, missing argument
-table: {}, parent_chain: {}, target_chain: {}"""
-                         .format(table, parent_chain, target_chain))
+            Logger.fatal(
+                f"Failed link() to iptables, missing argumenttable: {table}, parent_chain: {parent_chain}, "
+                f"target_chain: {target_chain}")
         else:
             return self._safe_command(
                 "-t", table,
@@ -33,23 +32,20 @@ table: {}, parent_chain: {}, target_chain: {}"""
 
     def create(self, table, chain):
         if not table or not chain:
-            Logger.fatal("""Failed create() iptables, missing argument
-table: {}, chain: {}""".format(table, chain))
+            Logger.fatal(f"Failed create() iptables, missing argument table: {table}, chain: {chain}")
         else:
             return self._safe_command("-t", table, "-N", chain)
 
     def flush(self, table, chain):
         if not table or not chain:
-            Logger.fatal("""Failed flush() iptables, missing argument
-table: {}, chain: {}""".format(table, chain))
+            Logger.fatal("Failed flush() iptables, missing argument table: {table}, chain: {chain}")
         else:
             return self._safe_command("-t", table, "-F", chain)
 
     def unlink(self, table, parent_chain, target_chain):
         if not table or not parent_chain or not target_chain:
-            Logger.fatal("""Failed unlink() from iptables, missing argument
-table: {}, parent_chain: {}, target_chain: {}"""
-                         .format(table, parent_chain, target_chain))
+            Logger.fatal(f"Failed unlink() from iptables, missing argument table: {table}, parent_chain: "
+                         f"{parent_chain}, target_chain: {target_chain}")
         else:
             return self._safe_command(
                 "-t", table,
@@ -59,15 +55,13 @@ table: {}, parent_chain: {}, target_chain: {}"""
 
     def delete(self, table, chain):
         if not table or not chain:
-            Logger.fatal("""Failed delete() from iptables, missing argument
-table: {}, chain: {}""".format(table, chain))
+            Logger.fatal(f"Failed delete() from iptables, missing argument table: {table}, chain: {chain}")
         else:
             return self._safe_command("-t", table, "-X", chain)
 
     def exists(self, table, chain):
         if not table or not chain:
-            Logger.fatal("""Failed exists() in iptables, missing argument
-table: {}, chain: {}""".format(table, chain))
+            Logger.fatal(f"Failed exists() in iptables, missing argument table: {table}, chain: {chain}")
         else:
             return self._safe_command("-t", table, "-L", chain)
 
