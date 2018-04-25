@@ -6,7 +6,6 @@ After=iptables.service ip6tables.service
 Type=oneshot
 RemainAfterExit=yes
 ExecStart=/bin/sh -c "ipwaiter --hire"
-ExecReload=/bin/sh -c "ipwaiter --rehire"
 ExecStop=/bin/sh -c "ipwaiter --fire"
 
 [Install]
