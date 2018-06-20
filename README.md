@@ -25,7 +25,7 @@ Create orders using normal `iptables` syntax and place them into the `ipwaiter`
 system configuration directory at `/etc/ipwaiter` in the `orders` subdirectory.  
 Order files are named as `%s.order` and are applied in the order they are listed.  
 
-A single order can be placed by using `ipwaiter add <CHAIN> <order>` where `CHAIN`  
+A single order can be placed by using `ipwaiter -A <CHAIN> <order>` where `CHAIN`  
 is either `INPUT` `FORWARD` or `OUTPUT`. The `order` is the name of the order  
 file without the `.order` suffix, so a file named `test.order` would be applied  
 to the `INPUT` chain using:
