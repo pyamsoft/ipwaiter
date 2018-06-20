@@ -1,5 +1,7 @@
 # ipwaiter
 
+The ipwaiter waits on iptables.
+
 ## What Is This
 
 `ipwaiter` works with `iptables` to manage groups of rules easily by putting  
@@ -24,8 +26,8 @@ system configuration directory at `/etc/ipwaiter` in the `orders` subdirectory.
 Order files are named as `%s.order` and are applied in the order they are listed.  
 
 A single order can be placed by using `ipwaiter add <CHAIN> <order>` where `CHAIN`  
-is either `INPUT` `FORWARD` or `OUTPUT`. The `order` is the name of the order file  
-without the `.order` suffix, so a file named `test.order` would be applied  
+is either `INPUT` `FORWARD` or `OUTPUT`. The `order` is the name of the order  
+file without the `.order` suffix, so a file named `test.order` would be applied  
 to the `INPUT` chain using:
 ```
 $ ipwaiter add INPUT test
@@ -39,8 +41,8 @@ no-op, though this is not guaranteed.
 
 ### System Setup
 
-There are three general purpose commands which can be used with `ipwaiter`, which  
-are `fire`, `hire`, and `rehire`.
+There are three general purpose commands which can be used with `ipwaiter`,  
+which are `fire`, `hire`, and `rehire`.
 
 `hire` parses the `system.conf` file in the  
 system configuration directory `/etc/ipwaiter` and adds the specified `orders`  
@@ -50,13 +52,6 @@ into the provided `CHAINS` assuming the `orders` are valid.
 reset back to before the `ipwaiter` began working.
 
 `rehire` first runs `fire` and then runs `hire`.
-
-## Should I Use This?
-
-No.
-
-No guarantees, only support provided will be that it "works on my machine."
-End user be warned.
 
 ## License
 
