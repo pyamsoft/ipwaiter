@@ -1,0 +1,82 @@
+# The GPLv2 License
+#
+#   Copyright (C) 2017  Peter Kenji Yamanaka
+#
+#   This program is free software; you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation; either version 2 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License along
+#   with this program; if not, write to the Free Software Foundation, Inc.,
+#   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+_ipwaiter()
+{
+  local cur
+  local prev
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  local ipwaiter_short_options
+  local ipwaiter_long_options
+  ipwaiter_short_options="-A -D -s -d -F -H -L -R -v -h"
+  ipwaiter_long_options="--add --delete --src --dst \
+    --fire --hire --list --raw --version --help --dir"
+
+  local ipwaiter_chains
+  local ipwaiter_orders
+  local order_dir
+  order_dir="/etc/ipwaiter/orders"
+  ipwaiter_chains="input output forward"
+  if [ -d "${order_dir}" ]; then
+    ipwaiter_orders="$(find "${order_dir}" -name '*.order'\
+      -exec basename {} .order \;)"
+  else
+    ipwaiter_orders=""
+  fi
+
+  case "${cur}" in
+    --*)
+      # shellcheck disable=SC2207
+      COMPREPLY=( $(compgen -W "${ipwaiter_long_options}" -- "${cur}") )
+      ;;
+    -*)
+      # shellcheck disable=SC2207
+      COMPREPLY=( $(compgen -W "${ipwaiter_short_options}" -- "${cur}") )
+      ;;
+    *)
+      case "${prev}" in
+        -A|--add|-D|--delete)
+          # shellcheck disable=SC2207
+          COMPREPLY=( $(compgen -W "${ipwaiter_chains}" -- "${cur}") )
+          ;;
+        *)
+          local using_chain
+          using_chain=0
+          for chain in ${ipwaiter_chains}; do
+            if [ "${prev}" = "${chain}" ]; then
+              using_chain=1
+              break
+            fi
+          done
+
+          if [ "${using_chain}" -eq 1 ]; then
+            # shellcheck disable=SC2207
+            COMPREPLY=( $(compgen -W "${ipwaiter_orders}" -- "${cur}") )
+          else
+            # shellcheck disable=SC2207
+            COMPREPLY=( $(compgen -W "${ipwaiter_short_options}" -- "${cur}") )
+          fi
+          ;;
+      esac
+      ;;
+  esac
+}
+
+complete -F _ipwaiter ipwaiter
