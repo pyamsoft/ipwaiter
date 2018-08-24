@@ -55,15 +55,15 @@ def _initialize_parser():
         "-A", "--add",
         action="store",
         dest="add",
-        nargs=2,
-        metavar=("ORDER", "CHAIN"),
+        nargs="*",
+        metavar=("CHAIN", "ORDER"),
         help="Add the ORDER to the CHAIN")
     parser.add_argument(
         "-D", "--delete",
         action="store",
         dest="delete",
-        nargs=2,
-        metavar=("ORDER", "CHAIN"),
+        nargs="*",
+        metavar=("CHAIN", "ORDER"),
         help="Delete the ORDER from the CHAIN")
     parser.add_argument(
         "--dir",

@@ -49,11 +49,12 @@ class Waiter:
         if not order:
             Logger.fatal("Cannot add empty order")
 
-        o_name = order[1]
         o_chain = order[0]
+        o_names = order[1:]
 
-        name, table, chain, parent, path = self._verify(o_name, raw, o_chain)
-        self._place_order(name, table, chain, parent, path, raw, opts, report)
+        for o_name in o_names:
+            name, table, chain, parent, path = self._verify(o_name, raw, o_chain)
+            self._place_order(name, table, chain, parent, path, raw, opts, report)
 
     def _place_order(self, name, table, chain, parent, path, raw, opts, report):
         # Stop if the chain exists
@@ -95,10 +96,12 @@ class Waiter:
         if not order:
             Logger.fatal("Cannot delete empty order")
 
-        o_name = order[1]
         o_chain = order[0]
-        name, table, chain, parent, path = self._verify(o_name, raw, o_chain)
-        self._remove_order(name, table, chain, parent, report)
+        o_names = order[1:]
+
+        for o_name in o_names:
+            name, table, chain, parent, path = self._verify(o_name, raw, o_chain)
+            self._remove_order(name, table, chain, parent, report)
 
     def _remove_order(self, name, table, chain, parent, report):
         # Stop if the chain does not exist
