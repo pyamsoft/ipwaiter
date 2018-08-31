@@ -29,6 +29,9 @@ installer()
   # Install systemd service
   install -m 644 -D conf/systemd/ipwaiter.service "${DESTDIR}/usr/lib/systemd/system" || return 1
 
+  # Install documentation
+  install -m 644 -D README.md "${DESTDIR}/usr/share/doc/ipwaiter" || return 1
+
   # Install license
   install -m 644 -D LICENSE "${DESTDIR}/usr/share/licenses/ipwaiter" || return 1
 

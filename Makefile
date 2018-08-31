@@ -39,14 +39,4 @@ all:
 
 install:
 	@echo "Installing..."
-	@echo "  INSTALL  $(SCRIPT_INSTALL_TARGET)"
-	@python3 setup.py install --root="$(DESTDIR)" --optimize=1
-	@echo "  INSTALL  $(DOC_INSTALL_TARGET)"
-	@mkdir -p "$(shell dirname $(DOC_INSTALL_TARGET))"
-	@install -Dm 644 "$(DOC_INSTALL_SRC)" "$(DOC_INSTALL_TARGET)"
-	@echo "  INSTALL  $(LICENSE_INSTALL_TARGET)"
-	@mkdir -p "$(shell dirname $(LICENSE_INSTALL_TARGET))"
-	@install -Dm 644 "$(LICENSE_INSTALL_SRC)" "$(LICENSE_INSTALL_TARGET)"
-	@echo "  INSTALL  $(COMPLETION_INSTALL_TARGET)"
-	@mkdir -p "$(shell dirname $(COMPLETION_INSTALL_TARGET))"
-	@install -Dm 644 "$(COMPLETION_INSTALL_SRC)" "$(COMPLETION_INSTALL_TARGET)"
+	@./install.sh install
