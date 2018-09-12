@@ -21,7 +21,7 @@ class Iptables:
     def link(self, table, parent_chain, target_chain):
         if not table or not parent_chain or not target_chain:
             Logger.fatal(
-                f"Failed link() to iptables, missing argumenttable: {table}, parent_chain: {parent_chain}, "
+                f"Failed link() to iptables, missing argument table: {table}, parent_chain: {parent_chain}, "
                 f"target_chain: {target_chain}")
         else:
             return self._safe_command(
