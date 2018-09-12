@@ -2,6 +2,7 @@
 
 import os
 import re
+import shlex
 
 import ipwaiter.utils as utils
 
@@ -75,6 +76,11 @@ class Waiter:
         # Add all of the rules for the
         reader = OrderReader(path, opts)
         for (read_table, read_line) in reader.as_lines():
+
+            # Read line is a simple split string, but cannot handle embedded quotes inside of strings.
+            # Join it into a string again, and re-split it with shlex for better handling
+            read_line = " ".join(read_line)
+            read_line = shlex.split(read_line)
 
             if ((raw and read_table == "raw") or
                     (not raw and read_table == "filter")):
