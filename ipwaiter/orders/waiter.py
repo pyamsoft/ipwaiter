@@ -151,19 +151,19 @@ class Waiter:
 
         orders = order_dict["FILTER_INPUT"]
         if orders:
-            self._add_order(("input", orders), raw=False, opts=opts, report=False)
+            self._add_order(("input", *orders), raw=False, opts=opts, report=False)
 
         orders = order_dict["FILTER_FORWARD"]
         if orders:
-            self._add_order(("forward", orders), raw=False, opts=opts, report=False)
+            self._add_order(("forward", *orders), raw=False, opts=opts, report=False)
 
         orders = order_dict["FILTER_OUTPUT"]
         if orders:
-            self._add_order(("output", orders), raw=False, opts=opts, report=False)
+            self._add_order(("output", *orders), raw=False, opts=opts, report=False)
 
         orders = order_dict["RAW_OUTPUT"]
         if orders:
-            self._add_order(("output", orders), raw=True, opts=opts, report=False)
+            self._add_order(("output", *orders), raw=True, opts=opts, report=False)
 
         Logger.log("Hired ipwaiter")
 
@@ -179,12 +179,12 @@ class Waiter:
                 orders.append(base_order)
 
         # Delete all not raw
-        self._delete_order(("input", orders), raw=False, report=False)
-        self._delete_order(("forward", orders), raw=False, report=False)
-        self._delete_order(("output", orders), raw=False, report=False)
+        self._delete_order(("input", *orders), raw=False, report=False)
+        self._delete_order(("forward", *orders), raw=False, report=False)
+        self._delete_order(("output", *orders), raw=False, report=False)
 
         # Delete all raw
-        self._delete_order(("output", orders), raw=True, report=False)
+        self._delete_order(("output", *orders), raw=True, report=False)
 
         # Delete the order chains
         self._iptables.flush("filter", "input_orders")
