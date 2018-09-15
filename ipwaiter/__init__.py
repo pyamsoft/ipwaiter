@@ -46,6 +46,12 @@ def _initialize_parser():
         const=True,
         help="Removes all the orders listed in system.conf")
     parser.add_argument(
+        "-T", "--teardown",
+        action="store_const",
+        dest="teardown",
+        const=True,
+        help="Completely removes all orders")
+    parser.add_argument(
         "--rehire",
         action="store_const",
         dest="rehire",
@@ -92,7 +98,7 @@ def _parse_options():
 
     # If nothing at all was picked, show help
     if (not parsed.delete and not parsed.add and
-            not parsed.hire and not parsed.fire and not parsed.rehire and
+            not parsed.hire and not parsed.fire and not parsed.rehire and not parsed.teardown and
             not parsed.list_orders):
         parser.print_help()
         sys.exit(0)
@@ -142,8 +148,8 @@ def main():
         ListOrders(order_dir).list_all()
     elif parsed.hire:
         Waiter(iptables, order_dir, system_conf).hire_waiter(opts)
-    elif parsed.fire:
-        Waiter(iptables, order_dir, system_conf).fire_waiter()
+    elif parsed.fire or parsed.teardown:
+        Waiter(iptables, order_dir, system_conf).fire_waiter(destroy=parsed.teardown)
     elif parsed.rehire:
         Waiter(iptables, order_dir, system_conf).rehire_waiter(opts)
     else:
