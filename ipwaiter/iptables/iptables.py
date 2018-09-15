@@ -90,6 +90,7 @@ class Iptables:
 
     def _safe_command(self, *args):
         try:
+            Logger.d(f"Run iptables command: '{' '.join(args)}'")
             result = self._cmd(args, _no_out=True, _no_err=True, _no_pipe=True)
             return result.exit_code == 0
         except sh.ErrorReturnCode:

@@ -58,6 +58,12 @@ def _initialize_parser():
         const=True,
         help="Fires the old waiter and Hires a new one")
     parser.add_argument(
+        "--debug",
+        action="store_const",
+        dest="debug",
+        const=True,
+        help="Enable runtime debugging")
+    parser.add_argument(
         "-A", "--add",
         action="store",
         dest="add",
@@ -95,6 +101,10 @@ def _initialize_parser():
 def _parse_options():
     parser = _initialize_parser()
     parsed = parser.parse_args()
+
+    if parsed.debug:
+        Logger.enabled = True
+        Logger.d("Runtime debugging turned on.")
 
     # If nothing at all was picked, show help
     if (not parsed.delete and not parsed.add and
