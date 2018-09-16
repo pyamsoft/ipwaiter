@@ -100,9 +100,9 @@ class Waiter:
             Logger.log(f"ipwaiter has placed order: {name}")
 
     def delete_order(self, order, raw):
-        self._delete_order(order, raw, report=True)
+        self._delete_order(order, raw, report=True, destroy=False)
 
-    def _delete_order(self, order, raw, report):
+    def _delete_order(self, order, raw, report, destroy):
         if not order:
             Logger.fatal("Cannot delete empty order")
 
@@ -112,9 +112,9 @@ class Waiter:
         for o_name in o_names:
             o_name = o_name.strip()
             name, table, chain, parent, path = self._verify(o_name, raw, o_chain)
-            self._remove_order(name, table, chain, parent, report)
+            self._remove_order(name, table, chain, parent, report, destroy)
 
-    def _remove_order(self, name, table, chain, parent, report):
+    def _remove_order(self, name, table, chain, parent, report, destroy):
         # Stop if the chain does not exist
         if not self._iptables.exists(table, chain):
             if report:
@@ -124,17 +124,29 @@ class Waiter:
         if report:
             Logger.log(f"ipwaiter is removing order: {name}")
 
-        # Unlink the chain if possible
-        if self._iptables.check_link(table, parent, chain):
-            if not self._iptables.unlink(table, parent, chain):
-                if report:
-                    Logger.fatal(f"Failed to unlink chain: {chain} table: {table} from: {parent}")
-                else:
-                    return
-        else:
+        # Make sure we can work
+        if not self._iptables.check_link(table, parent, chain):
             if report:
                 Logger.log(f"ipwaiter has never placed order: {name}")
             return
+
+        # Unlink the chain first
+        if not self._iptables.unlink(table, parent, chain):
+            if report:
+                Logger.fatal(f"Failed to unlink chain: {chain} table: {table} from: {parent}")
+            return
+
+        # If we are tearing down
+        if destroy:
+            if not self._iptables.flush(table, chain):
+                if report:
+                    Logger.fatal(f"Failed to flush chain: {chain} table: {table}")
+                return
+
+            if not self._iptables.delete(table, chain):
+                if report:
+                    Logger.fatal(f"Failed to delete chain: {chain} table: {table}")
+                return
 
         if report:
             Logger.log(f"ipwaiter has removed order: {name}")
@@ -175,12 +187,12 @@ class Waiter:
 
         # Delete all not raw
         if destroy:
-            self._delete_order(("input", *orders), raw=False, report=False)
-            self._delete_order(("forward", *orders), raw=False, report=False)
-            self._delete_order(("output", *orders), raw=False, report=False)
+            self._delete_order(("input", *orders), raw=False, report=False, destroy=True)
+            self._delete_order(("forward", *orders), raw=False, report=False, destroy=True)
+            self._delete_order(("output", *orders), raw=False, report=False, destroy=True)
 
             # Delete all raw
-            self._delete_order(("output", *orders), raw=True, report=False)
+            self._delete_order(("output", *orders), raw=True, report=False, destroy=True)
 
         # Delete the order chains
         self._iptables.flush("filter", "input_orders")
