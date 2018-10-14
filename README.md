@@ -2,6 +2,29 @@
 
 The ipwaiter waits on iptables.
 
+## Usage
+
+```
+usage: ipwaiter [-h] [-v] [-R] [-L] [-H] [-F] [--rehire] [-A ORDER CHAIN]
+                [-D ORDER CHAIN] [--dir DIR] [-s SRC] [-d DST]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --version         Display the version and exit
+  -R, --raw             Operate on RAW orders only
+  -L, --list            List all orders
+  -H, --hire            Runs all the orders listed in system.conf
+  -F, --fire            Removes all the orders listed in system.conf
+  --rehire              Fires the old waiter and Hires a new one
+  -A ORDER CHAIN, --add ORDER CHAIN
+                        Add the ORDER to the CHAIN
+  -D ORDER CHAIN, --delete ORDER CHAIN
+                        Delete the ORDER from the CHAIN
+  --dir DIR             Directory with all the ORDER files
+  -s SRC, --src SRC     Source IP address block for orders
+  -d DST, --dst DST     Destination IP address block for orders
+```
+
 ## What Is This
 
 `ipwaiter` works with `iptables` to manage groups of rules easily by putting  
@@ -53,26 +76,6 @@ reset back to before the `ipwaiter` began working.
 
 `rehire` first runs `fire` and then runs `hire`.
 
-```
-usage: ipwaiter [-h] [-v] [-R] [-L] [-H] [-F] [--rehire] [-A ORDER CHAIN]
-                [-D ORDER CHAIN] [--dir DIR] [-s SRC] [-d DST]
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -v, --version         Display the version and exit
-  -R, --raw             Operate on RAW orders only
-  -L, --list            List all orders
-  -H, --hire            Runs all the orders listed in system.conf
-  -F, --fire            Removes all the orders listed in system.conf
-  --rehire              Fires the old waiter and Hires a new one
-  -A ORDER CHAIN, --add ORDER CHAIN
-                        Add the ORDER to the CHAIN
-  -D ORDER CHAIN, --delete ORDER CHAIN
-                        Delete the ORDER from the CHAIN
-  --dir DIR             Directory with all the ORDER files
-  -s SRC, --src SRC     Source IP address block for orders
-  -d DST, --dst DST     Destination IP address block for orders
-```
 
 ## License
 
