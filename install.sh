@@ -1,6 +1,7 @@
 #!/bin/sh
 
 DESTDIR="${DESTDIR:-/}"
+PREFIX="${PREFIX:-/usr/local}"
 
 installer()
 {
@@ -18,6 +19,7 @@ installer()
   python3 setup.py install \
     --record="${DESTDIR}/etc/ipwaiter/install/files.txt" \
     --root="${DESTDIR}" \
+    --prefix="${PREFIX}" \
     --optimize=1 || return 1
 
   # Install system config
@@ -30,10 +32,10 @@ installer()
   install -m 644 -D conf/systemd/ipwaiter.service "${DESTDIR}/usr/lib/systemd/system" || return 1
 
   # Install documentation
-  install -m 644 -D README.md "${DESTDIR}/usr/share/doc/ipwaiter" || return 1
+  install -m 644 -D README.md "${DESTDIR}/${PREFIX}/share/doc/ipwaiter" || return 1
 
   # Install license
-  install -m 644 -D LICENSE "${DESTDIR}/usr/share/licenses/ipwaiter" || return 1
+  install -m 644 -D LICENSE "${DESTDIR}/${PREFIX}/share/licenses/ipwaiter" || return 1
 
   # Install bash completion
   install -m 644 -D res/shell/bash/bash_completion "${DESTDIR}/usr/share/bash-completion/completions/ipwaiter" || return 1
@@ -70,10 +72,10 @@ uninstaller()
   rm -f "${DESTDIR}/usr/lib/systemd/system/ipwaiter.service" || return 1
 
   # Remove license and directory
-  rm -r -f "${DESTDIR}/usr/share/licenses/ipwaiter" || return 1
+  rm -r -f "${DESTDIR}/${PREFIX}/share/licenses/ipwaiter" || return 1
 
   # Remove docs
-  rm -r -f "${DESTDIR}/usr/share/doc/ipwaiter" || return 1
+  rm -r -f "${DESTDIR}/${PREFIX}/share/doc/ipwaiter" || return 1
 
   # Remove bash completion
   rm -f "${DESTDIR}/usr/share/bash-completion/completions/ipwaiter" || return 1
