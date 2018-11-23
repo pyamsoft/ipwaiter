@@ -30,13 +30,17 @@ DOC_INSTALL_TARGET="$(DESTDIR)/$(PREFIX)/share/doc/$(NAME)/README.md"
 LICENSE_INSTALL_TARGET="$(DESTDIR)/$(PREFIX)/share/doc/$(NAME)/LICENSE"
 COMPLETION_INSTALL_TARGET="$(DESTDIR)/$(PREFIX)/share/bash-completion/completions/$(NAME)"
 
-.PHONY: all install
+.PHONY: all install uninstall
 
 all:
 	@echo "Targets"
-	@echo " install"
+	@echo " install uninstall"
 	@echo $(TARGET)
 
 install:
 	@echo "Installing..."
 	@./install.sh install
+
+uninstall:
+	@echo "Uninstalling..."
+	@./install.sh uninstall

@@ -15,7 +15,7 @@ installer()
   mkdir -p "${DESTDIR}/usr/lib/systemd/system" || return 1
 
   # Install using python
-  python setup.py install \
+  python3 setup.py install \
     --record="${DESTDIR}/etc/ipwaiter/install/files.txt" \
     --root="${DESTDIR}" \
     --optimize=1 || return 1
@@ -47,8 +47,8 @@ uninstaller()
   umask 022
 
   # If pip knows about the package, it can uninstall it.
-  if pip show ipwaiter > /dev/null; then
-    pip uninstall -y ipwaiter || return 1
+  if pip3 show ipwaiter > /dev/null; then
+    pip3 uninstall -y ipwaiter || return 1
   else
     printf -- 'pip cannot find ipwaiter, installed to a non standard location?\n'
     install_history="${DESTDIR}/etc/ipwaiter/install/files.txt"
@@ -71,6 +71,9 @@ uninstaller()
 
   # Remove license and directory
   rm -r -f "${DESTDIR}/usr/share/licenses/ipwaiter" || return 1
+
+  # Remove docs
+  rm -r -f "${DESTDIR}/usr/share/doc/git-ssh" || return 1
 
   # Remove bash completion
   rm -f "${DESTDIR}/usr/share/bash-completion/completions/ipwaiter" || return 1
