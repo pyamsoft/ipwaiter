@@ -73,7 +73,7 @@ uninstaller()
   rm -r -f "${DESTDIR}/usr/share/licenses/ipwaiter" || return 1
 
   # Remove docs
-  rm -r -f "${DESTDIR}/usr/share/doc/git-ssh" || return 1
+  rm -r -f "${DESTDIR}/usr/share/doc/ipwaiter" || return 1
 
   # Remove bash completion
   rm -f "${DESTDIR}/usr/share/bash-completion/completions/ipwaiter" || return 1
