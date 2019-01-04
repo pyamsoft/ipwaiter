@@ -158,11 +158,11 @@ def main():
     elif parsed.delete:
         waiter.delete_order(parsed.delete, parsed.raw)
     elif parsed.hire:
-        waiter.hire_waiter(opts)
+        waiter.hire_waiter(opts=opts, report=parsed.debug)
     elif parsed.fire or parsed.teardown:
-        waiter.fire_waiter(destroy=parsed.teardown)
+        waiter.fire_waiter(destroy=parsed.teardown, report=parsed.debug)
     elif parsed.rehire:
-        waiter.rehire_waiter(opts)
+        waiter.rehire_waiter(opts=opts, report=parsed.debug)
     elif parsed.list_orders:
         ListOrders(order_dir).list_all()
     else:

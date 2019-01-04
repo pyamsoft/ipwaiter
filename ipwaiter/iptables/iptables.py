@@ -101,8 +101,12 @@ class Iptables:
         try:
             Logger.d(f"Run iptables command: '{' '.join(args)}'")
             result = self._cmd(args, _no_out=True, _no_err=True, _no_pipe=True)
+            Logger.d("iptables command result")
+            Logger.d(result)
             return result.exit_code == 0
-        except sh.ErrorReturnCode:
+        except sh.ErrorReturnCode as e:
             # We ignore the error here since this will fail if the
             # chain does not exist, and its too noisy
+            Logger.d("iptables command failed")
+            Logger.d(e)
             return False

@@ -162,33 +162,33 @@ class Waiter:
         if report:
             Logger.log(f"ipwaiter has removed order: {name}")
 
-    def hire_waiter(self, opts):
+    def hire_waiter(self, opts, report):
         Logger.log("Hiring new ipwaiter")
         order_dict = self._system_conf.parse()
 
         orders = order_dict["FILTER_INPUT"]
         if orders:
             self._add_order(("input", *orders),
-                            raw=False, opts=opts, report=False)
+                            raw=False, opts=opts, report=report)
 
         orders = order_dict["FILTER_FORWARD"]
         if orders:
             self._add_order(("forward", *orders),
-                            raw=False, opts=opts, report=False)
+                            raw=False, opts=opts, report=report)
 
         orders = order_dict["FILTER_OUTPUT"]
         if orders:
             self._add_order(("output", *orders),
-                            raw=False, opts=opts, report=False)
+                            raw=False, opts=opts, report=report)
 
         orders = order_dict["RAW_OUTPUT"]
         if orders:
             self._add_order(("output", *orders),
-                            raw=True, opts=opts, report=False)
+                            raw=True, opts=opts, report=report)
 
         Logger.log("Hired ipwaiter")
 
-    def fire_waiter(self, destroy):
+    def fire_waiter(self, destroy, report):
         Logger.log("Firing old ipwaiter")
 
         orders = []
@@ -203,15 +203,15 @@ class Waiter:
         # Delete all not raw
         if destroy:
             self._delete_order(("input", *orders),
-                               raw=False, report=False, destroy=True)
+                               raw=False, report=report, destroy=True)
             self._delete_order(("forward", *orders),
-                               raw=False, report=False, destroy=True)
+                               raw=False, report=report, destroy=True)
             self._delete_order(("output", *orders),
-                               raw=False, report=False, destroy=True)
+                               raw=False, report=report, destroy=True)
 
             # Delete all raw
             self._delete_order(("output", *orders),
-                               raw=True, report=False, destroy=True)
+                               raw=True, report=report, destroy=True)
 
         # Delete the order chains
         self._iptables.flush("filter", "input_orders")
@@ -227,6 +227,6 @@ class Waiter:
 
         Logger.log("Fired ipwaiter")
 
-    def rehire_waiter(self, opts):
-        self.fire_waiter(destroy=False)
-        self.hire_waiter(opts)
+    def rehire_waiter(self, opts, report):
+        self.fire_waiter(destroy=False, report=report)
+        self.hire_waiter(opts=opts, report=report)
