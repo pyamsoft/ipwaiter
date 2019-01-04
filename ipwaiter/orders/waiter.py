@@ -55,11 +55,13 @@ class Waiter:
 
         for o_name in o_names:
             o_name = o_name.strip()
-            name, table, chain, parent, path = self._verify(o_name, raw, o_chain)
-            self._place_order(name, table, chain, parent, path, raw, opts, report)
+            verified = self._verify(o_name, raw, o_chain)
+            name, table, chain, parent, path = verified
+            self._place_order(name, table, chain, parent,
+                              path, raw, opts, report)
 
-    def _place_order(self, name, table, chain, parent, path, raw, opts, report):
-
+    def _place_order(self, name, table, chain, parent,
+                     path, raw, opts, report):
         if report:
             Logger.log(f"ipwaiter is placing order: {name}")
 
@@ -67,14 +69,17 @@ class Waiter:
         if not self._iptables.exists(table, chain):
             if not self._iptables.create(table, chain):
                 if report:
-                    Logger.fatal(f"Failed to create chain: {chain} for table: {table}")
+                    Logger.fatal(f"Failed to create chain: {chain} for "
+                                 f"table: {table}")
 
         # Add all of the rules for the
         reader = OrderReader(path, opts)
         for (read_table, read_line) in reader.as_lines():
 
-            # Read line is a simple split string, but cannot handle embedded quotes inside of strings.
-            # Join it into a string again, and re-split it with shlex for better handling
+            # Read line is a simple split string, but cannot
+            # handle embedded quotes inside of strings.
+            # Join it into a string again, and re-split
+            # it with shlex for better handling
             read_line = " ".join(read_line)
             read_line = shlex.split(read_line)
 
@@ -84,7 +89,8 @@ class Waiter:
                 if not self._iptables.check_add(read_table, chain, read_line):
                     if not self._iptables.add(read_table, chain, read_line):
                         if report:
-                            Logger.fatal(f"Failed add. table {read_line}, chain {chain}, rule {read_line}")
+                            Logger.fatal(f"Failed add. table {read_line}, "
+                                         f"chain {chain}, rule {read_line}")
 
         # Link the new chain to the parent chain
         if self._iptables.check_link(table, parent, chain):
@@ -94,7 +100,8 @@ class Waiter:
         else:
             if not self._iptables.link(table, parent, chain):
                 if report:
-                    Logger.fatal(f"Failed to link chain: {chain} table: {table} to: {parent}")
+                    Logger.fatal(f"Failed to link chain: {chain} "
+                                 f"table: {table} to: {parent}")
 
         if report:
             Logger.log(f"ipwaiter has placed order: {name}")
@@ -111,7 +118,8 @@ class Waiter:
 
         for o_name in o_names:
             o_name = o_name.strip()
-            name, table, chain, parent, path = self._verify(o_name, raw, o_chain)
+            verified = self._verify(o_name, raw, o_chain)
+            name, table, chain, parent, path = verified
             self._remove_order(name, table, chain, parent, report, destroy)
 
     def _remove_order(self, name, table, chain, parent, report, destroy):
@@ -133,19 +141,22 @@ class Waiter:
         # Unlink the chain first
         if not self._iptables.unlink(table, parent, chain):
             if report:
-                Logger.fatal(f"Failed to unlink chain: {chain} table: {table} from: {parent}")
+                Logger.fatal(f"Failed to unlink chain: {chain} table: "
+                             f"{table} from: {parent}")
             return
 
         # If we are tearing down
         if destroy:
             if not self._iptables.flush(table, chain):
                 if report:
-                    Logger.fatal(f"Failed to flush chain: {chain} table: {table}")
+                    Logger.fatal(f"Failed to flush chain: {chain} "
+                                 f"table: {table}")
                 return
 
             if not self._iptables.delete(table, chain):
                 if report:
-                    Logger.fatal(f"Failed to delete chain: {chain} table: {table}")
+                    Logger.fatal(f"Failed to delete chain: {chain} "
+                                 f"table: {table}")
                 return
 
         if report:
@@ -157,19 +168,23 @@ class Waiter:
 
         orders = order_dict["FILTER_INPUT"]
         if orders:
-            self._add_order(("input", *orders), raw=False, opts=opts, report=False)
+            self._add_order(("input", *orders),
+                            raw=False, opts=opts, report=False)
 
         orders = order_dict["FILTER_FORWARD"]
         if orders:
-            self._add_order(("forward", *orders), raw=False, opts=opts, report=False)
+            self._add_order(("forward", *orders),
+                            raw=False, opts=opts, report=False)
 
         orders = order_dict["FILTER_OUTPUT"]
         if orders:
-            self._add_order(("output", *orders), raw=False, opts=opts, report=False)
+            self._add_order(("output", *orders),
+                            raw=False, opts=opts, report=False)
 
         orders = order_dict["RAW_OUTPUT"]
         if orders:
-            self._add_order(("output", *orders), raw=True, opts=opts, report=False)
+            self._add_order(("output", *orders),
+                            raw=True, opts=opts, report=False)
 
         Logger.log("Hired ipwaiter")
 
@@ -182,17 +197,21 @@ class Waiter:
                 abspath = utils.to_absolute_path(self._order_dir, order)
                 if os.path.isfile(abspath) and abspath.endswith(".order"):
                     base_order = os.path.basename(abspath)
-                    base_order = re.sub("\.order$", "", base_order)
+                    base_order = re.sub(r"\.order$", "", base_order)
                     orders.append(base_order)
 
         # Delete all not raw
         if destroy:
-            self._delete_order(("input", *orders), raw=False, report=False, destroy=True)
-            self._delete_order(("forward", *orders), raw=False, report=False, destroy=True)
-            self._delete_order(("output", *orders), raw=False, report=False, destroy=True)
+            self._delete_order(("input", *orders),
+                               raw=False, report=False, destroy=True)
+            self._delete_order(("forward", *orders),
+                               raw=False, report=False, destroy=True)
+            self._delete_order(("output", *orders),
+                               raw=False, report=False, destroy=True)
 
             # Delete all raw
-            self._delete_order(("output", *orders), raw=True, report=False, destroy=True)
+            self._delete_order(("output", *orders),
+                               raw=True, report=False, destroy=True)
 
         # Delete the order chains
         self._iptables.flush("filter", "input_orders")

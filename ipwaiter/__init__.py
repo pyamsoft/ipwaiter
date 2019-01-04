@@ -108,7 +108,8 @@ def _parse_options():
 
     # If nothing at all was picked, show help
     if (not parsed.delete and not parsed.add and
-            not parsed.hire and not parsed.fire and not parsed.rehire and not parsed.teardown and
+            not parsed.hire and not parsed.fire and
+            not parsed.rehire and not parsed.teardown and
             not parsed.list_orders):
         parser.print_help()
         sys.exit(0)
@@ -139,7 +140,8 @@ def main():
 
     if (parsed.hire and parsed.fire) or (parsed.rehire and parsed.hire) \
             or (parsed.fire and parsed.rehire):
-        Logger.log("Must specify only one of either --fire or --hire or --rehire")
+        Logger.log("Must specify only one of either "
+                   "--fire or --hire or --rehire")
         sys.exit(1)
 
     opts = {}
@@ -150,17 +152,18 @@ def main():
 
     iptables = Iptables()
     system_conf = SystemConfParser("/etc/ipwaiter/system.conf")
+    waiter = Waiter(iptables, order_dir, system_conf)
     if parsed.add:
-        Waiter(iptables, order_dir, system_conf).add_order(parsed.add, parsed.raw, opts)
+        waiter.add_order(parsed.add, parsed.raw, opts)
     elif parsed.delete:
-        Waiter(iptables, order_dir, system_conf).delete_order(parsed.delete, parsed.raw)
+        waiter.delete_order(parsed.delete, parsed.raw)
+    elif parsed.hire:
+        waiter.hire_waiter(opts)
+    elif parsed.fire or parsed.teardown:
+        waiter.fire_waiter(destroy=parsed.teardown)
+    elif parsed.rehire:
+        waiter.rehire_waiter(opts)
     elif parsed.list_orders:
         ListOrders(order_dir).list_all()
-    elif parsed.hire:
-        Waiter(iptables, order_dir, system_conf).hire_waiter(opts)
-    elif parsed.fire or parsed.teardown:
-        Waiter(iptables, order_dir, system_conf).fire_waiter(destroy=parsed.teardown)
-    elif parsed.rehire:
-        Waiter(iptables, order_dir, system_conf).rehire_waiter(opts)
     else:
         Logger.fatal("Reached the end of the script without a valid command!")

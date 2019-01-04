@@ -42,7 +42,8 @@ class SystemConfParser:
     @staticmethod
     def _attempt_populate_list(token, line):
         if line.startswith(token):
-            return SystemConfParser._grab_content_between_quotes(line.strip(token))
+            stripped = line.strip(token)
+            return SystemConfParser._grab_content_between_quotes(stripped)
         else:
             return []
 
@@ -52,25 +53,27 @@ class SystemConfParser:
         filter_output = []
         raw_output = []
 
+        populate_list = SystemConfParser._attempt_populate_list
         for line in self._read_conf():
             # If we are not filled yet, try this line
             if not filter_input:
-                filter_input = SystemConfParser._attempt_populate_list("FILTER_INPUT=", line)
+                filter_input = populate_list("FILTER_INPUT=", line)
 
             # If we are not filled yet, try this line
             if not filter_forward:
-                filter_forward = SystemConfParser._attempt_populate_list("FILTER_FORWARD=", line)
+                filter_forward = populate_list("FILTER_FORWARD=", line)
 
             # If we are not filled yet, try this line
             if not filter_output:
-                filter_output = SystemConfParser._attempt_populate_list("FILTER_OUTPUT=", line)
+                filter_output = populate_list("FILTER_OUTPUT=", line)
 
             # If we are not filled yet, try this line
             if not raw_output:
-                raw_output = SystemConfParser._attempt_populate_list("RAW_OUTPUT=", line)
+                raw_output = populate_list("RAW_OUTPUT=", line)
 
             # If everything is filled, we can stop
-            if filter_input and filter_forward and filter_output and raw_output:
+            if (filter_input and filter_forward
+                    and filter_output and raw_output):
                 break
 
         return {

@@ -14,25 +14,29 @@ class Iptables:
 
     def exists(self, table, chain):
         if not table or not chain:
-            Logger.fatal(f"Failed exists() in iptables, arguments table: {table}, chain: {chain}")
+            Logger.fatal(f"Failed exists() in iptables, arguments table: "
+                         f"{table}, chain: {chain}")
         else:
             return self._safe_command("-t", table, "-L", chain)
 
     def create(self, table, chain):
         if not table or not chain:
-            Logger.fatal(f"Failed create() iptables, arguments table: {table}, chain: {chain}")
+            Logger.fatal(f"Failed create() iptables, arguments table: "
+                         f"{table}, chain: {chain}")
         else:
             return self._safe_command("-t", table, "-N", chain)
 
     def flush(self, table, chain):
         if not table or not chain:
-            Logger.fatal("Failed flush() iptables, arguments table: {table}, chain: {chain}")
+            Logger.fatal("Failed flush() iptables, arguments table: "
+                         f"{table}, chain: {chain}")
         else:
             return self._safe_command("-t", table, "-F", chain)
 
     def delete(self, table, chain):
         if not table or not chain:
-            Logger.fatal(f"Failed delete() from iptables, arguments table: {table}, chain: {chain}")
+            Logger.fatal(f"Failed delete() from iptables, arguments "
+                         f"table: {table}, chain: {chain}")
         else:
             return self._safe_command("-t", table, "-X", chain)
 
@@ -40,7 +44,8 @@ class Iptables:
 
     def check_add(self, table, chain, args):
         if not table or not chain or not args:
-            Logger.fatal(f"Failed check_add() on iptables, arguments table: {table}, chain: {chain}, args: {args}")
+            Logger.fatal(f"Failed check_add() on iptables, arguments "
+                         f"table: {table}, chain: {chain}, args: {args}")
         else:
             command = ["-t", table, "-C", chain]
             command += args
@@ -48,7 +53,8 @@ class Iptables:
 
     def check_link(self, table, parent_chain, target_chain):
         if not table or not parent_chain or not target_chain:
-            Logger.fatal(f"Failed check_unlink() from iptables, arguments table: {table}, parent_chain: "
+            Logger.fatal(f"Failed check_unlink() from iptables, arguments "
+                         f"table: {table}, parent_chain: "
                          f"{parent_chain}, target_chain: {target_chain}")
         else:
             return self._safe_command(
@@ -59,7 +65,8 @@ class Iptables:
 
     def add(self, table, chain, args):
         if not table or not chain or not args:
-            Logger.fatal(f"Failed add() to iptables, arguments table: {table}, chain: {chain}, args: {args}")
+            Logger.fatal(f"Failed add() to iptables, arguments "
+                         f"table: {table}, chain: {chain}, args: {args}")
         else:
             command = ["-t", table, "-A", chain]
             command += args
@@ -68,7 +75,8 @@ class Iptables:
     def link(self, table, parent_chain, target_chain):
         if not table or not parent_chain or not target_chain:
             Logger.fatal(
-                f"Failed link() to iptables, arguments table: {table}, parent_chain: {parent_chain}, "
+                f"Failed link() to iptables, arguments table: {table}, "
+                f"parent_chain: {parent_chain}, "
                 f"target_chain: {target_chain}")
         else:
             return self._safe_command(
@@ -79,7 +87,8 @@ class Iptables:
 
     def unlink(self, table, parent_chain, target_chain):
         if not table or not parent_chain or not target_chain:
-            Logger.fatal(f"Failed unlink() from iptables, arguments table: {table}, parent_chain: "
+            Logger.fatal(f"Failed unlink() from iptables, arguments "
+                         f"table: {table}, parent_chain: "
                          f"{parent_chain}, target_chain: {target_chain}")
         else:
             return self._safe_command(
