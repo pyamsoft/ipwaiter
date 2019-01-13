@@ -25,41 +25,54 @@ _ipwaiter()
 
   local ipwaiter_short_options
   local ipwaiter_long_options
-  ipwaiter_short_options="-A -D -s -d -F -H -L -R -v -h"
+  ipwaiter_short_options="-A -D -s -d -F -H -L -R -O -v -h"
   ipwaiter_long_options="--add --delete --src --dst \
-    --fire --hire --list --raw --version --help --dir"
+    --fire --hire --list --raw --orders --version --help"
 
   local ipwaiter_chains
   local raw_ipwaiter_chains
   local ipwaiter_orders
-  local order_dir
+  local possible_order_dirs
   local raw_mode
+  local next_argument_is_order_dir
 
-  order_dir="/etc/ipwaiter/orders"
+  possible_order_dirs="/etc/ipwaiter/orders ${XDG_CONFIG_DIR:-${HOME}/.config}/ipwaiter/orders"
   ipwaiter_chains="input output forward"
   raw_ipwaiter_chains="output"
-
-  # Raw mode
   raw_mode=0
+  next_argument_is_order_dir=0
+
+  # Search for raw mode for different completions
+  # Search for config dir asking
   for word in "${COMP_WORDS[@]}"; do
+    if [ "${next_argument_is_order_dir}" -eq 1 ]; then
+      possible_order_dirs="${possible_order_dirs} ${word}"
+      next_argument_is_order_dir=0
+    fi
+
     if [ "${word}" = "-R" ] || [ "${word}" = "--raw" ]; then
       raw_mode=1
+    elif [ "${word}" = "-O" ] || [ "${word}" = "--orders" ]; then
+      next_argument_is_order_dir=1
     fi
   done
 
   # Populate possible orders
-  if [ -d "${order_dir}" ]; then
-    local full_ipwaiter_orders
-    if [ "${raw_mode}" -eq 1 ]; then
-      full_ipwaiter_orders="$(grep -i '^RAW' -l "${order_dir}/"*.order)"
-    else
-      full_ipwaiter_orders="$(grep -i '^FILTER' -l "${order_dir}/"*.order)"
+  for order_dir in ${possible_order_dirs}; do
+    if [ -d "${order_dir}" ]; then
+      local full_ipwaiter_orders
+      if [ "${raw_mode}" -eq 1 ]; then
+        full_ipwaiter_orders="$(grep -i '^RAW' -l "${order_dir}/"*.order)"
+      else
+        full_ipwaiter_orders="$(grep -i '^FILTER' -l "${order_dir}/"*.order)"
+      fi
+
+      for full_order in ${full_ipwaiter_orders}; do
+        ipwaiter_orders="${ipwaiter_orders} $(basename "${full_order}" '.order')"
+      done
+      unset full_ipwaiter_orders
     fi
-    for full_path_order in ${full_ipwaiter_orders}; do
-      ipwaiter_orders="${ipwaiter_orders} $(basename "${full_path_order}" '.order')"
-    done
-    unset full_ipwaiter_orders
-  fi
+  done
 
   case "${cur}" in
     --*)
