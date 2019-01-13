@@ -159,6 +159,12 @@ def _find_config_dir():
     return config_dir
 
 
+def _append_order_dir_if_valid(order_dirs, dir):
+    """Append a possible order dir if it is valid"""
+    if os.path.isdir(dir):
+        order_dirs.append(dir)
+
+
 def _exit_if_not_super():
     if os.geteuid() != 0:
         Logger.fatal("You must be root to use ipwaiter")
@@ -169,11 +175,14 @@ def main():
     parsed = _parse_options()
 
     # Orders are searched in system and user config directories
-    order_dirs = [PathConstants.SYSTERM_CONFIG_DIR, _find_config_dir()]
+    order_dirs = []
+    _append_order_dir_if_valid(order_dirs, PathConstants.SYSTERM_CONFIG_DIR)
+    _append_order_dir_if_valid(order_dirs, _find_config_dir())
 
     # Add any command line arguments to the directories
     if parsed.orders:
-        order_dirs += parsed.orders
+        for order_dir in parsed.orders:
+            _append_order_dir_if_valid(order_dirs, order_dir)
 
     # Reverse the list so it will search custom locations and then the home and system last
     order_dirs.reverse()
