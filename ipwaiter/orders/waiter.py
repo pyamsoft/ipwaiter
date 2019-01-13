@@ -32,19 +32,20 @@ from .reader import OrderReader
 
 class Waiter:
 
-    def __init__(self, iptables, order_dir, system_conf):
-        if not os.path.isdir(order_dir):
-            Logger.fatal(f"Invalid order directory given: {order_dir}")
+    def __init__(self, iptables, order_dirs, system_conf):
+        for order_dir in order_dirs:
+            if not os.path.isdir(order_dir):
+                Logger.fatal(f"Invalid order directory given: {order_dir}")
 
         if not iptables:
             Logger.fatal(f"Invalid iptables handler given: {iptables}")
 
         self._system_conf = system_conf
-        self._order_dir = order_dir
+        self._order_dirs = order_dirs
         self._iptables = iptables
 
     def _verify(self, name, raw, chain):
-        preconditions = Preconditions(self._iptables, self._order_dir, raw)
+        preconditions = Preconditions(self._iptables, self._order_dirs, raw)
 
         # Create the required chains
         preconditions.create_chains_if_needed()
@@ -212,12 +213,13 @@ class Waiter:
 
         orders = []
         if destroy:
-            for order in os.listdir(self._order_dir):
-                abspath = utils.to_absolute_path(self._order_dir, order)
-                if os.path.isfile(abspath) and abspath.endswith(".order"):
-                    base_order = os.path.basename(abspath)
-                    base_order = re.sub(r"\.order$", "", base_order)
-                    orders.append(base_order)
+            for order_dir in self._order_dirs:
+                for order in os.listdir(order_dir):
+                    abspath = utils.to_absolute_path(order_dir, order)
+                    if os.path.isfile(abspath) and abspath.endswith(".order"):
+                        base_order = os.path.basename(abspath)
+                        base_order = re.sub(r"\.order$", "", base_order)
+                        orders.append(base_order)
 
         # Delete all not raw
         if destroy:

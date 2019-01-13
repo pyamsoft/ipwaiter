@@ -23,6 +23,7 @@ import argparse
 import os
 import sys
 
+from .constants import PathConstants
 from .iptables.iptables import Iptables
 from .logger.logger import Logger
 from .orders.lister import ListOrders
@@ -97,8 +98,8 @@ def _initialize_parser():
         metavar=("CHAIN", "ORDER"),
         help="Delete the ORDER from the CHAIN")
     parser.add_argument(
-        "--dir",
-        action="store",
+        "-O", "--orders",
+        action="append",
         dest="orders",
         metavar="DIR",
         help="Directory with all the ORDER files")
@@ -136,6 +137,28 @@ def _parse_options():
     return parsed
 
 
+def _find_config_dir():
+    """Find the config directory either from arguments or environment"""
+    config_dir = None
+    try:
+        xdg_env = os.environ[PathConstants.ENV_XDG_CONFIG]
+        if xdg_env:
+            config_dir = f"{xdg_env}/ipwaiter/orders"
+            Logger.d(f"Config dir from {PathConstants.ENV_XDG_CONFIG}: {config_dir}")
+    except KeyError:
+        Logger.e(f"Error getting config dir from {PathConstants.ENV_XDG_CONFIG}")
+
+        # Set to nothing so it will be handled by next if
+        config_dir = None
+
+    # Or from default
+    if not config_dir:
+        config_dir = os.path.expanduser(PathConstants.HOME_CONFIG_DIR)
+        Logger.d(f"Config dir from fallback: {config_dir}")
+
+    return config_dir
+
+
 def _exit_if_not_super():
     if os.geteuid() != 0:
         Logger.fatal("You must be root to use ipwaiter")
@@ -145,44 +168,51 @@ def main():
     # Parse the options before starting setup
     parsed = _parse_options()
 
-    # We must have superuser privs
-    _exit_if_not_super()
+    # Orders are searched in system and user config directories
+    order_dirs = [PathConstants.SYSTERM_CONFIG_DIR, _find_config_dir()]
 
-    # Set or override the order_dir
-    order_dir = "/etc/ipwaiter/orders"
+    # Add any command line arguments to the directories
     if parsed.orders:
-        order_dir = parsed.orders
+        order_dirs += parsed.orders
 
-    if parsed.add and parsed.delete:
-        Logger.log("Must specify only one of either --add or --delete")
-        sys.exit(1)
+    # Reverse the list so it will search custom locations and then the home and system last
+    order_dirs.reverse()
 
-    if (parsed.hire and parsed.fire) or (parsed.rehire and parsed.hire) \
-            or (parsed.fire and parsed.rehire):
-        Logger.log("Must specify only one of either "
-                   "--fire or --hire or --rehire")
-        sys.exit(1)
-
-    opts = {}
-    if parsed.src:
-        opts["src"] = parsed.src
-    if parsed.dst:
-        opts["dst"] = parsed.dst
-
-    iptables = Iptables()
-    system_conf = SystemConfParser("/etc/ipwaiter/system.conf")
-    waiter = Waiter(iptables, order_dir, system_conf)
-    if parsed.add:
-        waiter.add_order(parsed.add, parsed.raw, opts)
-    elif parsed.delete:
-        waiter.delete_order(parsed.delete, parsed.raw)
-    elif parsed.hire:
-        waiter.hire_waiter(opts=opts, report=parsed.debug)
-    elif parsed.fire or parsed.teardown:
-        waiter.fire_waiter(destroy=parsed.teardown, report=parsed.debug)
-    elif parsed.rehire:
-        waiter.rehire_waiter(opts=opts, report=parsed.debug)
-    elif parsed.list_orders:
-        ListOrders(order_dir).list_all()
+    if parsed.list_orders:
+        ListOrders(order_dirs).list_all()
     else:
-        Logger.fatal("Reached the end of the script without a valid command!")
+        # We must have superuser privs
+        _exit_if_not_super()
+
+        if parsed.add and parsed.delete:
+            Logger.log("Must specify only one of either --add or --delete")
+            sys.exit(1)
+
+        if (parsed.hire and parsed.fire) or (parsed.rehire and parsed.hire) \
+                or (parsed.fire and parsed.rehire):
+            Logger.log("Must specify only one of either "
+                       "--fire or --hire or --rehire")
+            sys.exit(1)
+
+        opts = {}
+        if parsed.src:
+            opts["src"] = parsed.src
+        if parsed.dst:
+            opts["dst"] = parsed.dst
+
+        iptables = Iptables()
+        system_conf = SystemConfParser("/etc/ipwaiter/system.conf")
+        waiter = Waiter(iptables, order_dirs, system_conf)
+
+        if parsed.add:
+            waiter.add_order(parsed.add, parsed.raw, opts)
+        elif parsed.delete:
+            waiter.delete_order(parsed.delete, parsed.raw)
+        elif parsed.hire:
+            waiter.hire_waiter(opts=opts, report=parsed.debug)
+        elif parsed.fire or parsed.teardown:
+            waiter.fire_waiter(destroy=parsed.teardown, report=parsed.debug)
+        elif parsed.rehire:
+            waiter.rehire_waiter(opts=opts, report=parsed.debug)
+        else:
+            Logger.fatal("Reached the end of the script without a valid command!")

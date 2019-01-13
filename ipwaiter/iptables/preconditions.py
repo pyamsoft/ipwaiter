@@ -28,15 +28,16 @@ from ..logger.logger import Logger
 
 class Preconditions:
 
-    def __init__(self, iptables, order_dir, raw):
-        if not os.path.isdir(order_dir):
-            Logger.fatal(f"Invalid order directory: {order_dir}")
+    def __init__(self, iptables, order_dirs, raw):
+        for order_dir in order_dirs:
+            if not os.path.isdir(order_dir):
+                Logger.fatal(f"Invalid order directory: {order_dir}")
 
         if not iptables:
             Logger.fatal(f"Invalid iptables handler given: {iptables}")
 
         self._iptables = iptables
-        self._order_dir = order_dir
+        self._order_dirs = order_dirs
         self._raw = raw
 
     def create_chains_if_needed(self):
@@ -69,10 +70,11 @@ class Preconditions:
         if not order:
             Logger.fatal(f"Invalid order, cannot check: {order}")
 
-        for file in os.listdir(self._order_dir):
-            abspath = utils.to_absolute_path(self._order_dir, file)
-            if (os.path.isfile(abspath) and abspath.endswith(".order")
-                    and os.path.basename(file) == f"{order}.order"):
-                return abspath
+        for order_dir in self._order_dirs:
+            for file in os.listdir(order_dir):
+                abspath = utils.to_absolute_path(order_dir, file)
+                if (os.path.isfile(abspath) and abspath.endswith(".order")
+                        and os.path.basename(file) == f"{order}.order"):
+                    return abspath
 
         return ""
