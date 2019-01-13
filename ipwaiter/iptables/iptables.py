@@ -18,18 +18,12 @@
 #    with this program; if not, write to the Free Software Foundation, Inc.,
 #    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-
-import sh
+import subprocess
 
 from ..logger.logger import Logger
 
 
 class Iptables:
-
-    def __init__(self):
-        self._cmd = sh.Command("iptables")
-
-    # Chain operations
 
     def exists(self, table, chain):
         if not table or not chain:
@@ -116,14 +110,44 @@ class Iptables:
                 "-j", target_chain
             )
 
-    def _safe_command(self, *args):
+    @staticmethod
+    def _get_output():
+        """Get output level based on debugging mode"""
+        return None if Logger.enabled else subprocess.DEVNULL
+
+    @staticmethod
+    def _run(args):
+        """Call subprocess command"""
+        output = Iptables._get_output()
+        if hasattr(subprocess, "run"):
+            Logger.d("subprocess.run exists, using it")
+            subprocess.run(
+                args,
+                check=True,
+                stdin=output,
+                stdout=output,
+                stderr=output
+            )
+        else:
+            Logger.d("subprocess.run does not exist, fallback to call")
+            subprocess.check_call(
+                args,
+                stdin=output,
+                stdout=output,
+                stderr=output
+            )
+
+    @staticmethod
+    def _safe_command(*args):
         try:
             Logger.d(f"Run iptables command: '{' '.join(args)}'")
-            result = self._cmd(args, _no_out=True, _no_err=True, _no_pipe=True)
-            Logger.d("iptables command result")
-            Logger.d(result)
-            return result.exit_code == 0
-        except sh.ErrorReturnCode as e:
+
+            full_args = ["iptables"]
+            for arg in args:
+                full_args.append(arg)
+            Iptables._run(full_args)
+            return True
+        except subprocess.CalledProcessError as e:
             # We ignore the error here since this will fail if the
             # chain does not exist, and its too noisy
             Logger.d("iptables command failed")
