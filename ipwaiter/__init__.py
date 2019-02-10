@@ -189,46 +189,45 @@ def main():
 
     if parsed.list_orders:
         ListOrders(order_dirs).list_all()
-    else:
-        # We must have superuser privs
-        # _exit_if_not_super()
+        return
 
-        if (parsed.hire and parsed.fire) or (parsed.rehire and parsed.hire) \
-                or (parsed.fire and parsed.rehire):
-            Logger.log("Must specify only one of either "
-                       "--fire or --hire or --rehire")
-            sys.exit(1)
+    # We must have superuser privs
+    _exit_if_not_super()
 
-        if (parsed.add_orders or parsed.delete_orders) and \
-                (parsed.hire or parsed.fire or parsed.rehire):
-            Logger.log("Cannot add or delete orders while hiring or firing "
-                       "an ipwaiter")
-            sys.exit(2)
+    if (parsed.hire and parsed.fire) or (parsed.rehire and parsed.hire) \
+            or (parsed.fire and parsed.rehire):
+        Logger.log("Must specify only one of either "
+                    "--fire or --hire or --rehire")
+        sys.exit(1)
 
-        opts = {}
-        if parsed.src:
-            opts["src"] = parsed.src
-        if parsed.dst:
-            opts["dst"] = parsed.dst
+    if (parsed.add_orders or parsed.delete_orders) and \
+            (parsed.hire or parsed.fire or parsed.rehire):
+        Logger.log("Cannot add or delete orders while hiring or firing "
+                    "an ipwaiter")
+        sys.exit(2)
 
-        iptables = Iptables()
-        system_conf = SystemConfParser("/etc/ipwaiter/system.conf")
-        waiter = Waiter(iptables, order_dirs, system_conf)
+    opts = {}
+    if parsed.src:
+        opts["src"] = parsed.src
+    if parsed.dst:
+        opts["dst"] = parsed.dst
 
-        operate_raw_chain = parsed.raw
-        if parsed.add_orders:
-            for order in parsed.add_orders:
-                waiter.add_order(order, operate_raw_chain, opts)
+    iptables = Iptables()
+    system_conf = SystemConfParser("/etc/ipwaiter/system.conf")
+    waiter = Waiter(iptables, order_dirs, system_conf)
 
-        if parsed.delete_orders:
-            for order in parsed.delete_orders:
-                waiter.delete_order(order, operate_raw_chain)
+    if parsed.add_orders:
+        for order in parsed.add_orders:
+            waiter.add_order(order, parsed.raw, opts)
 
-        if parsed.hire:
-            waiter.hire_waiter(opts=opts, report=parsed.debug)
-        elif parsed.fire or parsed.teardown:
-            waiter.fire_waiter(destroy=parsed.teardown, report=parsed.debug)
-        elif parsed.rehire:
-            waiter.rehire_waiter(opts=opts, report=parsed.debug)
-        else:
-            Logger.fatal("Reached the end of the script without a valid command!")
+    if parsed.delete_orders:
+        for order in parsed.delete_orders:
+            waiter.delete_order(order, parsed.raw)
+
+    if parsed.hire:
+        waiter.hire_waiter(opts=opts, report=parsed.debug)
+    elif parsed.fire or parsed.teardown:
+        waiter.fire_waiter(destroy=parsed.teardown, report=parsed.debug)
+    elif parsed.rehire:
+        waiter.rehire_waiter(opts=opts, report=parsed.debug)
+
