@@ -85,15 +85,15 @@ def _initialize_parser():
         help="Enable runtime debugging")
     parser.add_argument(
         "-A", "--add",
-        action="store",
-        dest="add",
+        action="append",
+        dest="add_orders",
         nargs="*",
         metavar=("CHAIN", "ORDER"),
         help="Add the ORDER to the CHAIN")
     parser.add_argument(
         "-D", "--delete",
-        action="store",
-        dest="delete",
+        action="append",
+        dest="delete_orders",
         nargs="*",
         metavar=("CHAIN", "ORDER"),
         help="Delete the ORDER from the CHAIN")
@@ -127,7 +127,7 @@ def _parse_options():
         Logger.d("Runtime debugging turned on.")
 
     # If nothing at all was picked, show help
-    if (not parsed.delete and not parsed.add and
+    if (not parsed.delete_orders and not parsed.add_orders and
             not parsed.hire and not parsed.fire and
             not parsed.rehire and not parsed.teardown and
             not parsed.list_orders):
@@ -191,17 +191,19 @@ def main():
         ListOrders(order_dirs).list_all()
     else:
         # We must have superuser privs
-        _exit_if_not_super()
-
-        if parsed.add and parsed.delete:
-            Logger.log("Must specify only one of either --add or --delete")
-            sys.exit(1)
+        # _exit_if_not_super()
 
         if (parsed.hire and parsed.fire) or (parsed.rehire and parsed.hire) \
                 or (parsed.fire and parsed.rehire):
             Logger.log("Must specify only one of either "
                        "--fire or --hire or --rehire")
             sys.exit(1)
+
+        if (parsed.add_orders or parsed.delete_orders) and \
+                (parsed.hire or parsed.fire or parsed.rehire):
+            Logger.log("Cannot add or delete orders while hiring or firing "
+                       "an ipwaiter")
+            sys.exit(2)
 
         opts = {}
         if parsed.src:
@@ -213,11 +215,16 @@ def main():
         system_conf = SystemConfParser("/etc/ipwaiter/system.conf")
         waiter = Waiter(iptables, order_dirs, system_conf)
 
-        if parsed.add:
-            waiter.add_order(parsed.add, parsed.raw, opts)
-        elif parsed.delete:
-            waiter.delete_order(parsed.delete, parsed.raw)
-        elif parsed.hire:
+        operate_raw_chain = parsed.raw
+        if parsed.add_orders:
+            for order in parsed.add_orders:
+                waiter.add_order(order, operate_raw_chain, opts)
+
+        if parsed.delete_orders:
+            for order in parsed.delete_orders:
+                waiter.delete_order(order, operate_raw_chain)
+
+        if parsed.hire:
             waiter.hire_waiter(opts=opts, report=parsed.debug)
         elif parsed.fire or parsed.teardown:
             waiter.fire_waiter(destroy=parsed.teardown, report=parsed.debug)
