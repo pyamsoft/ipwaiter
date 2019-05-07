@@ -177,7 +177,7 @@ def main():
     # Orders are searched in system and user config directories
     order_dirs = []
     _append_order_dir_if_valid(order_dirs, PathConstants.SYSTERM_CONFIG_DIR)
-    _append_order_dir_if_valid(order_dirs, _find_config_dir())
+    # _append_order_dir_if_valid(order_dirs, _find_config_dir())
 
     # Add any command line arguments to the directories
     if parsed.orders:
