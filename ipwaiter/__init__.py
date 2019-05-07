@@ -159,10 +159,10 @@ def _find_config_dir():
     return config_dir
 
 
-def _append_order_dir_if_valid(order_dirs, dir):
+def _append_order_dir_if_valid(order_dirs, directory):
     """Append a possible order dir if it is valid"""
-    if os.path.isdir(dir):
-        order_dirs.append(dir)
+    if os.path.isdir(directory):
+        order_dirs.append(directory)
 
 
 def _exit_if_not_super():
@@ -176,7 +176,8 @@ def main():
 
     # Orders are searched in system and user config directories
     order_dirs = []
-    _append_order_dir_if_valid(order_dirs, PathConstants.SYSTERM_CONFIG_DIR)
+    _append_order_dir_if_valid(order_dirs, PathConstants.SYSTEM_CONFIG_DIR)
+    _append_order_dir_if_valid(order_dirs, PathConstants.ADMIN_CONFIG_DIR)
     # _append_order_dir_if_valid(order_dirs, _find_config_dir())
 
     # Add any command line arguments to the directories
@@ -197,13 +198,13 @@ def main():
     if (parsed.hire and parsed.fire) or (parsed.rehire and parsed.hire) \
             or (parsed.fire and parsed.rehire):
         Logger.log("Must specify only one of either "
-                    "--fire or --hire or --rehire")
+                   "--fire or --hire or --rehire")
         sys.exit(1)
 
     if (parsed.add_orders or parsed.delete_orders) and \
             (parsed.hire or parsed.fire or parsed.rehire):
         Logger.log("Cannot add or delete orders while hiring or firing "
-                    "an ipwaiter")
+                   "an ipwaiter")
         sys.exit(2)
 
     opts = {}
@@ -230,4 +231,3 @@ def main():
         waiter.fire_waiter(destroy=parsed.teardown, report=parsed.debug)
     elif parsed.rehire:
         waiter.rehire_waiter(opts=opts, report=parsed.debug)
-

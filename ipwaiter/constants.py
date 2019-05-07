@@ -24,7 +24,10 @@ class PathConstants:
     ENV_XDG_CONFIG = "XDG_CONFIG_HOME"
 
     """System config dir default"""
-    SYSTERM_CONFIG_DIR = "/etc/ipwaiter/orders"
+    SYSTEM_CONFIG_DIR = "/etc/ipwaiter/orders"
+
+    """Admin config dir default"""
+    ADMIN_CONFIG_DIR = "/etc/ipwaiter/custom/orders"
 
     """User config dir default"""
     HOME_CONFIG_DIR = "~/.config/ipwaiter/orders"
