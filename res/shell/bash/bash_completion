@@ -36,7 +36,7 @@ _ipwaiter()
   local raw_mode
   local next_argument_is_order_dir
 
-  possible_order_dirs="/etc/ipwaiter/orders ${XDG_CONFIG_DIR:-${HOME}/.config}/ipwaiter/orders"
+  possible_order_dirs="/etc/ipwaiter/orders /etc/ipwaiter/custom/orders"
   ipwaiter_chains="input output forward"
   raw_ipwaiter_chains="output"
   raw_mode=0
