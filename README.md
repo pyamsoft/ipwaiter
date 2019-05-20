@@ -1,3 +1,7 @@
+# DEPRECATED
+
+Deprecated in favor of [firewalld](https://firewalld.org)  
+
 # ipwaiter
 
 The ipwaiter waits on iptables.
